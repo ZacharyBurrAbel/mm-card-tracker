@@ -1347,19 +1347,22 @@ const CARDS=[
  spendData:fillSpend([{from:"2021-11",to:"2022-01",val:"$10k/6mo"},
  {from:"2022-02",to:"2026-06",val:"$4k/6mo"}]),},
 {id:'co-venture',issuer:'co',name:'Capital One Venture Rewards Credit Card',af:95,
- current:'75k after $4k spend / 3 months',atb:'75k + $250 Capital One Travel credit (Jan–Apr 2026, Oct–Dec 2025)',
+ current:'75k after $4k spend / 3 months',atb:'100k after $20k/3mo (Mar–Jul 2021) or 100k YMMV kiosk after $5k (Jan 2026)',
  rating:'great',conf:'high',
  link:'https://monkeymiles.boardingarea.com/capital-one-venture/',
  tags:['capital one','venture','personal','travel'],
  approx:false,
  elevated:[
-   ALL_MONTHS.indexOf('2021-01'),ALL_MONTHS.indexOf('2021-02'),
+   ALL_MONTHS.indexOf('2021-03'),ALL_MONTHS.indexOf('2021-04'),ALL_MONTHS.indexOf('2021-05'),ALL_MONTHS.indexOf('2021-06'),ALL_MONTHS.indexOf('2021-07'),
    ALL_MONTHS.indexOf('2023-03'),ALL_MONTHS.indexOf('2023-04'),
    ALL_MONTHS.indexOf('2025-10'),ALL_MONTHS.indexOf('2025-11'),ALL_MONTHS.indexOf('2025-12'),
    ALL_MONTHS.indexOf('2026-01'),ALL_MONTHS.indexOf('2026-02'),ALL_MONTHS.indexOf('2026-03'),ALL_MONTHS.indexOf('2026-04'),
  ],
  monthlyNotes:{
-   '2021-01':'100K offer briefly available.',
+   '2021-01':'80K elevated offer. 100K after $20K/3mo appeared Mar 2021 (AwardWallet/MonkeyMiles confirmed).',
+   '2021-03':'100K best-ever public offer after $20K spend/3 months (Mar–Jul 2021). MonkeyMiles: “all-time high of 100K.”',
+   '2021-08':'100K expired. Back to 60K–75K standard.',
+   '2026-01':'100K YMMV kiosk offer appeared at $5K spend (FrequentMiler Jan 21, 2026). Dropped to 80K shortly after.',
    '2025-10':'75K + $250 Capital One Travel credit returned (DoC Oct 1, 2025; MonkeyMiles referral page confirmed elevated offer). Credit valid 1 year, hotels & vacation rentals only.',
    '2026-01':'75K + $250 re-launched Jan 20, 2026 (MonkeyMiles Jan 20 comment: "Updated 2026 Cap1 Venture Referral Link"; UpgradedPoints confirmed $1,600 est. value).',
    '2026-04':'Offer ended April 13, 2026 (MilesTalk/FrequentMiler/MonkeyMiles "Ending soon!" confirmed). Back to standard 75K.',
@@ -1367,9 +1370,11 @@ const CARDS=[
  },
  ...fillMonths([
    {from:'2016-01',to:'2020-06',val:50},
-   {from:'2020-07',to:'2022-06',val:60},
+   {from:'2020-07',to:'2021-02',val:60},
+   {from:'2021-03',to:'2021-07',val:100},// best ever: 100K after $20K/3mo (Mar-Jul 2021)
+   {from:'2021-08',to:'2022-06',val:60},
    {from:'2022-07',to:'2024-12',val:75},
-   {from:'2025-01',to:'2025-02',val:75},// +$250 credit window ~Oct 2024–Feb 2025 (DoC referral Oct 2025)
+   {from:'2025-01',to:'2025-02',val:75},// +$250 credit window
    {from:'2025-03',to:'2025-09',val:75},
    {from:'2025-10',to:'2025-12',val:75},// +$250 credit window returned (DoC: referral Oct 1 2025)
    {from:'2026-01',to:'2026-04',val:75},// +$250 credit window Jan 20–Apr 13, 2026 (MilesTalk/FM confirmed)
@@ -1378,7 +1383,9 @@ const CARDS=[
    {from:'2021-01',to:'2021-02',val:100},
    {from:'2022-07',to:'2026-06',val:100},
  ]),
- spendData:fillSpend([{from:"2016-01",to:"2022-06",val:"$3k/3mo"},
+ spendData:fillSpend([{from:"2016-01",to:"2021-02",val:"$3k/3mo"},
+ {from:"2021-03",to:"2021-07",val:"$20k/3mo"},
+ {from:"2021-08",to:"2022-06",val:"$3k/3mo"},
  {from:"2022-07",to:"2026-06",val:"$4k/3mo"}]),},
 {id:'co-savor',issuer:'co',name:'Capital One Savor Cash Rewards Credit Card',af:0,
  current:'$200 cashback after $500 / 3 months',atb:'$200 cashback after $500 / 3 months',

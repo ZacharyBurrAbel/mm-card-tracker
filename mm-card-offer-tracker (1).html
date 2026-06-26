@@ -118,7 +118,7 @@ body{font-family:var(--fb);background:var(--g50);color:var(--g800);font-size:15p
     <div class="hl">MONKEY<span>MILES</span> · Card Offer Tracker</div>
     <div class="hsub">Current offers · all-time bests · monthly history · elevated offer patterns</div>
   </div>
-  <div class="hup">Updated Jun 15, 2026</div>
+  <div class="hup">Updated Jun 26, 2026</div>
 </div>
 <div class="controls">
   <div class="sw">
@@ -146,7 +146,7 @@ body{font-family:var(--fb);background:var(--g50);color:var(--g800);font-size:15p
   </div>
   <span class="rc" id="rc"></span>
 </div>
-
+ 
 <div class="mo" id="mo">
   <div class="mdl" id="mdl">
     <div class="mh">
@@ -176,9 +176,9 @@ body{font-family:var(--fb);background:var(--g50);color:var(--g800);font-size:15p
     </div>
   </div>
 </div>
-
+ 
 <div class="main" id="main"></div>
-
+ 
 <script>
 // ── ISSUER CONFIG ─────────────────────────────────────────────────────────────
 const IC = {
@@ -191,7 +191,7 @@ const IC = {
   bilt:   {line:'#5e2da0',fill:'rgba(94,45,160,.07)',tgt:'#a880d4',badge:'badge-bilt',lbl:'Bilt'},
   usb:    {line:'#555533',fill:'rgba(85,85,51,.07)',tgt:'#999977',badge:'badge-usb',lbl:'US Bank'}
 };
-
+ 
 // Helper: generate monthly array from Jan 2016 to Jun 2026 (126 months)
 function makeMonths(){
   const out=[];
@@ -202,21 +202,34 @@ function makeMonths(){
   return out;
 }
 const ALL_MONTHS = makeMonths(); // 126 entries
-
+ 
 function ymLabel(ym){
   const [y,m]=ym.split('-');
   const mn=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   return mn[parseInt(m)-1]+' '+y;
 }
-
+ 
 // ── CARD DATA ─────────────────────────────────────────────────────────────────
 // monthly.pub: array of 126 values (null = no card yet or no data), indexed to ALL_MONTHS
 // monthly.tgt: targeted offers
 // elevated: array of month-indices where historically elevated (for pattern band)
 // notes indexed to ALL_MONTHS (sparse object)
 // approx: true if data is quarterly estimates
-
+ 
 // Helper: fill a monthly array given breakpoints [{from:'YYYY-MM',val:N}]
+function fillSpend(breaks){
+  // breaks: [{from:'YYYY-MM',to:'YYYY-MM',val:'$Xk/Ymo'}]
+  const arr=new Array(126).fill(null);
+  if(!breaks) return arr;
+  breaks.forEach(({from,to,val})=>{
+    const fi=ALL_MONTHS.indexOf(from);
+    const ti=to?ALL_MONTHS.indexOf(to):125;
+    if(fi<0)return;
+    for(let i=fi;i<=Math.min(ti,125);i++) arr[i]=val;
+  });
+  return arr;
+}
+ 
 function fillMonths(breaks, tgtBreaks){
   const pub=new Array(126).fill(null);
   const tgt=new Array(126).fill(null);
@@ -234,7 +247,7 @@ function fillMonths(breaks, tgtBreaks){
   });
   return{pub,tgt};
 }
-
+ 
 const CARDS=[
 // ═══════════════════════════════════════════════════════════════
 // AMEX
@@ -280,8 +293,13 @@ const CARDS=[
    {from:'2020-08',to:'2021-07',val:125},
    {from:'2021-08',to:'2024-08',val:150},
    {from:'2024-09',to:'2026-06',val:175},
- ])
-},
+ ]),
+ spendData:fillSpend([{from:"2016-01",to:"2017-02",val:"$2k/3mo"},
+ {from:"2017-03",to:"2020-07",val:"$3k/3mo"},
+ {from:"2020-08",to:"2021-07",val:"$5k/6mo"},
+ {from:"2021-08",to:"2024-08",val:"$5k/6mo"},
+ {from:"2024-09",to:"2025-12",val:"$8k/6mo"},
+ {from:"2026-01",to:"2026-06",val:"$12k/6mo"}]),},
 {id:'amex-plat-schwab',issuer:'amex',name:'American Express Platinum Card® for Schwab',af:895,
  current:'150k after $12k / 6 months',atb:'150k + 15x on dining',
  rating:'great',conf:'med',
@@ -380,8 +398,10 @@ const CARDS=[
    {from:'2021-10',to:'2021-12',val:100},
    {from:'2022-01',to:'2025-08',val:90},
    {from:'2025-09',to:'2026-06',val:100},
- ])
-},
+ ]),
+ spendData:fillSpend([{from:"2016-01",to:"2018-09",val:"$2k/3mo"},
+ {from:"2018-10",to:"2024-09",val:"$4k/6mo"},
+ {from:"2024-10",to:"2026-06",val:"$8k/6mo"}]),},
 {id:'amex-biz-plat',issuer:'amex',name:'Business Platinum Card® from American Express',af:895,
  current:'As high as 300k after $20k spend / 3 months',atb:'As high as 300k targeted with $20k in 3 months',
  rating:'great',conf:'high',
@@ -414,8 +434,10 @@ const CARDS=[
    {from:'2021-10',to:'2024-08',val:150},
    {from:'2024-09',to:'2025-07',val:250},
    {from:'2025-08',to:'2026-06',val:300},
- ])
-},
+ ]),
+ spendData:fillSpend([{from:"2016-01",to:"2020-12",val:"$15k/3mo"},
+ {from:"2021-01",to:"2024-08",val:"$15k/3mo"},
+ {from:"2024-09",to:"2026-06",val:"$20k/3mo"}]),},
 {id:'amex-biz-gold',issuer:'amex',name:'American Express® Business Gold Card',af:375,
  current:'As high as 200k after $15k spend / 3 months',atb:'As high as 200k after $15k spend in 3 months',
  rating:'great',conf:'high',
@@ -544,8 +566,9 @@ const CARDS=[
  ],[
    {from:'2022-01',to:'2023-06',val:150},
    {from:'2023-07',to:'2026-06',val:180},
- ])
-},
+ ]),
+ spendData:fillSpend([{from:"2018-01",to:"2022-12",val:"$2k-$3k/3mo"},
+ {from:"2023-01",to:"2026-06",val:"$3k/6mo"}]),},
 {id:'amex-hilton-aspire',issuer:'amex',name:'Hilton Honors American Express Aspire Card',af:550,
  current:'175k after $6k spend / 6 months (ends 7/29/26)',atb:'175k after $6k / 6 months (Apr 2026)',
  rating:'great',conf:'high',
@@ -567,8 +590,8 @@ const CARDS=[
  ],[
    {from:'2022-01',to:'2025-05',val:150},
    {from:'2025-06',to:'2026-06',val:175},
- ])
-},
+ ]),
+ spendData:fillSpend([{from:"2018-01",to:"2026-06",val:"$6k/6mo"}]),},
 {id:'amex-hilton-biz',issuer:'amex',name:'Hilton Honors American Express Business Card',af:195,
  current:'130k after $6k spend / 3 months (AF waived first year)',atb:'175k + 1 free night after $4k / 3 months (Feb 2026)',
  rating:'great',conf:'med',
@@ -650,8 +673,9 @@ const CARDS=[
    {from:'2024-11',to:'2026-02',val:150},
    {from:'2026-03',to:'2026-04',val:200},
    {from:'2026-05',to:'2026-06',val:150},
- ])
-},
+ ]),
+ spendData:fillSpend([{from:"2016-01",to:"2022-06",val:"$5k/3mo"},
+ {from:"2022-07",to:"2026-06",val:"$6k/6mo"}]),},
 {id:'amex-marr-bevy',issuer:'amex',name:'Marriott Bonvoy Bevy™ American Express® Card',af:250,
  current:'175k after $5k / 6 months',atb:'175k after $5k / 6 months',
  rating:'great',conf:'high',
@@ -773,8 +797,9 @@ const CARDS=[
    {from:'2022-04',to:'2022-06',val:85},
    {from:'2022-07',to:'2024-02',val:80},
    {from:'2024-03',to:'2026-06',val:90},
- ])
-},
+ ]),
+ spendData:fillSpend([{from:"2016-01",to:"2024-02",val:"$1k-$2k/6mo"},
+ {from:"2024-03",to:"2026-06",val:"$3k+$2k/6mo"}]),},
 {id:'amex-delta-plat',issuer:'amex',name:'Delta SkyMiles® Platinum American Express Card',af:350,
  current:'Up to 100k (80k after $4k/6mos + 20k after $2k/6mos)',atb:'Up to 100k (80k+20k tiered)',
  rating:'good',conf:'high',
@@ -825,8 +850,9 @@ const CARDS=[
    {from:'2022-04',to:'2022-06',val:100},
    {from:'2022-07',to:'2024-02',val:90},
    {from:'2024-03',to:'2026-06',val:100},
- ])
-},
+ ]),
+ spendData:fillSpend([{from:"2016-01",to:"2024-02",val:"$3k-$4k/3-6mo"},
+ {from:"2024-03",to:"2026-06",val:"$4k+$2k/6mo"}]),},
 {id:'amex-delta-res',issuer:'amex',name:'Delta SkyMiles® Reserve American Express Card',af:650,
  current:'Up to 125k (100k after $6k/6mos + 25k after $3k/6mos)',atb:'Up to 125k (100k+25k tiered)',
  rating:'great',conf:'high',
@@ -893,8 +919,9 @@ const CARDS=[
    {from:'2022-06',to:'2023-04',val:100},
    {from:'2023-05',to:'2024-03',val:100},
    {from:'2024-04',to:'2026-06',val:125},
- ])
-},
+ ]),
+ spendData:fillSpend([{from:"2016-01",to:"2024-02",val:"$3k-$5k/3-6mo"},
+ {from:"2024-03",to:"2026-06",val:"$6k+$3k/6mo"}]),},
 {id:'amex-delta-gold-biz',issuer:'amex',name:'Delta SkyMiles® Gold American Express Business Card',af:150,
  current:'90k after $6k / 6 months',atb:'90k after $4k / 3 months',
  rating:'good',conf:'med',
@@ -1012,8 +1039,8 @@ const CARDS=[
    {from:'2026-02',to:'2026-02',val:85},
    {from:'2026-03',to:'2026-03',val:60},
    {from:'2026-04',to:'2026-06',val:85},
- ])
-},
+ ]),
+ spendData:fillSpend([{from:"2024-06",to:"2026-06",val:"$4k-$4.5k/120 days"}]),},
 {id:'boa-alaska-biz',issuer:'boa',name:'Alaska Airlines Visa® Business Card (Atmos)',af:95,
  current:'75k after $5.5k / 90 days + companion fare',atb:'85k + companion fare (best ever, Aug 2025)',
  rating:'great',conf:'high',
@@ -1316,8 +1343,9 @@ const CARDS=[
    {from:'2026-02',to:'2026-06',val:75},
  ],[
    {from:'2022-01',to:'2026-06',val:90},
- ])
-},
+ ]),
+ spendData:fillSpend([{from:"2021-11",to:"2022-01",val:"$10k/6mo"},
+ {from:"2022-02",to:"2026-06",val:"$4k/6mo"}]),},
 {id:'co-venture',issuer:'co',name:'Capital One Venture Rewards Credit Card',af:95,
  current:'75k after $4k spend / 3 months',atb:'75k + $250 Capital One Travel credit (Jan–Apr 2026, Oct–Dec 2025)',
  rating:'great',conf:'high',
@@ -1349,8 +1377,9 @@ const CARDS=[
  ],[
    {from:'2021-01',to:'2021-02',val:100},
    {from:'2022-07',to:'2026-06',val:100},
- ])
-},
+ ]),
+ spendData:fillSpend([{from:"2016-01",to:"2022-06",val:"$3k/3mo"},
+ {from:"2022-07",to:"2026-06",val:"$4k/3mo"}]),},
 {id:'co-savor',issuer:'co',name:'Capital One Savor Cash Rewards Credit Card',af:0,
  current:'$200 cashback after $500 / 3 months',atb:'$200 cashback after $500 / 3 months',
  rating:'below',conf:'low',
@@ -1378,8 +1407,8 @@ const CARDS=[
    {from:'2024-01',to:'2025-10',val:250},
    {from:'2025-11',to:'2025-12',val:400},
    {from:'2026-01',to:'2026-06',val:250},
- ])
-},
+ ]),
+ spendData:fillSpend([{from:"2022-01",to:"2026-06",val:"$20k/3mo"}]),},
 {id:'co-venture-biz',issuer:'co',name:'Capital One Venture Business',af:95,
  current:'Up to 150k (75k after $7.5k/3 mos + 75k after $30k/6 mos)',atb:'150k (75k/$7.5k + 75k/$30k)',
  rating:'great',conf:'med',
@@ -1447,8 +1476,12 @@ const CARDS=[
    {from:'2025-06',to:'2025-12',val:75},
    {from:'2026-01',to:'2026-05',val:75},
    {from:'2026-06',to:'2026-06',val:100},
- ])
-},
+ ]),
+ spendData:fillSpend([{from:"2016-01",to:"2021-05",val:"$4k/3mo"},
+ {from:"2021-06",to:"2021-09",val:"$4k/3mo"},
+ {from:"2021-10",to:"2025-05",val:"$4k/3mo"},
+ {from:"2025-06",to:"2026-05",val:"$4k/3mo"},
+ {from:"2026-06",to:"2026-06",val:"$5k/3mo"}]),},
 {id:'chase-csr',issuer:'chase',name:'Chase Sapphire Reserve®',af:795,
  current:'100k after $6k / 3 months',atb:'150k after $6k / 3 months',
  rating:'great',conf:'high',
@@ -1479,8 +1512,10 @@ const CARDS=[
    {from:'2024-07',to:'2025-05',val:60},
    {from:'2025-06',to:'2026-04',val:100},
    {from:'2026-05',to:'2026-06',val:150},
- ])
-},
+ ]),
+ spendData:fillSpend([{from:"2016-08",to:"2024-12",val:"$4k/3mo"},
+ {from:"2025-01",to:"2026-04",val:"$6k/3mo"},
+ {from:"2026-05",to:"2026-06",val:"$6k/3mo"}]),},
 {id:'chase-csr-biz',issuer:'chase',name:'Chase Sapphire Reserve® for Business',af:795,
  current:'200k after $30k / 6 months',atb:'200k after $30k / 6 months',
  rating:'great',conf:'low',
@@ -1522,8 +1557,9 @@ const CARDS=[
  ],[
    {from:'2019-01',to:'2020-02',val:100},
    {from:'2024-07',to:'2026-06',val:120},
- ])
-},
+ ]),
+ spendData:fillSpend([{from:"2017-01",to:"2022-12",val:"$15k/3mo"},
+ {from:"2023-01",to:"2026-06",val:"$8k/3mo"}]),},
 {id:'chase-ink-cash',issuer:'chase',name:'Ink Business Cash® Credit Card',af:0,
  current:'100k after $8k / 4 months',atb:'100k after $8k / 4 months',
  rating:'great',conf:'high',
@@ -1540,8 +1576,9 @@ const CARDS=[
    {from:'2020-03',to:'2022-12',val:75},// $750
    {from:'2023-01',to:'2024-12',val:90},// $900 / 100K
    {from:'2025-01',to:'2026-06',val:100},
- ])
-},
+ ]),
+ spendData:fillSpend([{from:"2016-01",to:"2023-12",val:"$3k/3mo"},
+ {from:"2024-01",to:"2026-06",val:"$8k/4mo"}]),},
 {id:'chase-ink-unl',issuer:'chase',name:'Ink Business Unlimited® Credit Card',af:0,
  current:'100k after $8k / 4 months',atb:'100k after $8k / 4 months',
  rating:'great',conf:'high',
@@ -1557,8 +1594,9 @@ const CARDS=[
    {from:'2025-01',to:'2025-10',val:90},
    {from:'2025-11',to:'2026-05',val:75},
    {from:'2026-06',to:'2026-06',val:100},
- ])
-},
+ ]),
+ spendData:fillSpend([{from:"2018-01",to:"2023-12",val:"$3k/3mo"},
+ {from:"2024-01",to:"2026-06",val:"$8k/4mo"}]),},
 {id:'chase-ink-prem',issuer:'chase',name:'Ink Business Premier® Credit Card',af:195,
  current:'$1000 after $10k / 3 months',atb:'$1500 targeted via banker / Chase account',
  rating:'great',conf:'med',
@@ -1620,8 +1658,8 @@ const CARDS=[
    {from:'2021-07',to:'2025-12',val:60},
    {from:'2026-01',to:'2026-01',val:60},
    {from:'2026-02',to:'2026-06',val:45},
- ])
-},
+ ]),
+ spendData:fillSpend([{from:"2016-01",to:"2026-06",val:"$3k/3mo"}]),},
 {id:'chase-hyatt-biz',issuer:'chase',name:'World of Hyatt Business Credit Card',af:199,
  current:'60k after $5k / 3 months',atb:'80k after $10k / 3 months (Jan 2024) or 60k+1FN (Jan 2025)',
  rating:'good',conf:'high',
@@ -1683,8 +1721,9 @@ const CARDS=[
    {from:'2026-01',to:'2026-02',val:175},
    {from:'2026-03',to:'2026-03',val:140},
    {from:'2026-04',to:'2026-06',val:185},
- ])
-},
+ ]),
+ spendData:fillSpend([{from:"2016-01",to:"2025-06",val:"$3k/3mo"},
+ {from:"2025-07",to:"2026-06",val:"$3k/3mo"}]),},
 {id:'chase-ihg-trav',issuer:'chase',name:'IHG One Rewards Traveler Credit Card',af:0,
  current:'80k after $2k / 3 months',atb:'125k (90k+35k tiered)',
  rating:'good',conf:'high',
@@ -1857,8 +1896,9 @@ const CARDS=[
    {from:'2025-11',to:'2025-11',val:50},
    {from:'2025-12',to:'2026-04',val:50},
    {from:'2026-05',to:'2026-06',val:80},
- ],[{from:'2021-01',to:'2026-06',val:100}])
-},
+ ],[{from:'2021-01',to:'2026-06',val:100}]),
+ spendData:fillSpend([{from:"2016-01",to:"2025-06",val:"$1k/3mo"},
+ {from:"2025-07",to:"2026-06",val:"$1k/3mo"}]),},
 {id:'chase-sw-prio',issuer:'chase',name:'Southwest Rapid Rewards® Priority Credit Card',af:229,
  current:'90k after $3k / 3 months',atb:'100k (Jul 2025 — best ever)',
  rating:'great',conf:'high',
@@ -2146,8 +2186,8 @@ const CARDS=[
    {from:'2023-02',to:'2024-04',val:75},
    {from:'2024-05',to:'2025-03',val:75},
    {from:'2025-04',to:'2026-06',val:60},
- ],[{from:'2022-09',to:'2026-06',val:80}])
-},
+ ],[{from:'2022-09',to:'2026-06',val:80}]),
+ spendData:fillSpend([{from:"2016-01",to:"2026-06",val:"$4k/3mo"}]),},
 {id:'citi-dc',issuer:'citi',name:'Citi Double Cash® Card',af:0,
  current:'$200 after $1500 / 3 months (20k ThankYou)',atb:'$200 or 20k ThankYou highest public',
  rating:'below',conf:'low',
@@ -2190,8 +2230,8 @@ const CARDS=[
    {from:'2024-01',to:'2025-04',val:65},
    {from:'2025-05',to:'2025-06',val:60},
    {from:'2025-07',to:'2026-06',val:80},
- ])
-},
+ ]),
+ spendData:fillSpend([{from:"2016-01",to:"2026-06",val:"$1k/4mo"}]),},
 {id:'citi-aa-exec',issuer:'citi',name:'Citi® / AAdvantage® Executive World Elite Mastercard®',af:595,
  current:'100k after $10k / 3 months',atb:'100k after $10k / 3 months',
  rating:'great',conf:'med',
@@ -2295,10 +2335,10 @@ const CARDS=[
  ...fillMonths([{from:'2021-01',to:'2026-06',val:750}])
 },
 ];
-
+ 
 // ── CHART STATE ────────────────────────────────────────────────────────────────
 let activeIssuer='all', searchQ='', modalChart=null, activeCard=null, viewMode='all', activeYear=null;
-
+ 
 function getFiltered(){
   return CARDS.filter(c=>{
     const mi=activeIssuer==='all'||c.issuer===activeIssuer;
@@ -2307,13 +2347,13 @@ function getFiltered(){
     return mi&&ms;
   });
 }
-
+ 
 function ratingPct(c){
   const m=c.atb.match(/([\d,]+)k/i);
   if(!m)return 20;
   return Math.min(100,Math.round(parseInt(m[1].replace(/,/g,''))*1000/300000*100));
 }
-
+ 
 function buildCard(c){
   const ic=IC[c.issuer];
   const rc={great:{l:'Great offer',cl:'tg'},good:{l:'Good offer',cl:'tgood'},below:{l:'Below avg',cl:'tbl'}}[c.rating];
@@ -2338,7 +2378,7 @@ function buildCard(c){
         <div class="ol">All-time best</div>
         <div class="ov oh">${c.atb}</div>
       </div>
-
+ 
     </div>
     <div class="cfoot">
       <button class="btn-chart" onclick="openModal('${c.id}')">📈 History & Pattern</button>
@@ -2347,7 +2387,7 @@ function buildCard(c){
     </div>
   </div>`;
 }
-
+ 
 function renderCards(){
   const fil=getFiltered();
   document.getElementById('rc').textContent=`${fil.length} card${fil.length!==1?'s':''}`;
@@ -2358,7 +2398,7 @@ function renderCards(){
   const order=['amex','chase','co','citi','barclay','boa','bilt','usb'];
   main.innerHTML=order.filter(i=>by[i]).map(i=>`<div class="is"><div class="ih">${IC[i].lbl}<span class="ic">${by[i].length}</span></div><div class="cg">${by[i].map(buildCard).join('')}</div></div>`).join('');
 }
-
+ 
 // ── MODAL ──────────────────────────────────────────────────────────────────────
 function getChartData(card){
   // Returns {labels, pubData, tgtData, patternBands, peakIdx}
@@ -2393,7 +2433,7 @@ function getChartData(card){
   const tgt=idxs.map(i=>card.tgt[i]);
   return{labels,pubData:pub,tgtData:tgt,idxs};
 }
-
+ 
 function openModal(id){
   const card=CARDS.find(c=>c.id===id);
   if(!card)return;
@@ -2423,7 +2463,7 @@ function openModal(id){
   document.getElementById('mo').classList.add('open');
   document.body.style.overflow='hidden';
 }
-
+ 
 function setupViewTabs(){
   document.querySelectorAll('#vtabs .vt').forEach(btn=>{
     btn.onclick=()=>{
@@ -2437,26 +2477,26 @@ function setupViewTabs(){
   });
   document.querySelectorAll('#vtabs .vt')[0].classList.add('active');
 }
-
+ 
 function drawChart(card){
   if(modalChart){modalChart.destroy();modalChart=null;}
   const ic=IC[card.issuer];
   const cd=getChartData(card);
   const isCash=card.isCash||false;
   const hasTgt=cd.tgtData&&cd.tgtData.some(Boolean);
-
+ 
   // Legend
   document.getElementById('cleg').innerHTML=`
     <div class="li"><div class="ls" style="background:${ic.line}"></div>Public offer</div>
     ${hasTgt?`<div class="li"><div class="ld" style="border-color:${ic.tgt}"></div>Best targeted</div>`:''}`;
-
+ 
   // Approx note
   document.getElementById('approx-note').textContent=card.approx
     ?'⚠ Some monthly data is estimated from quarterly records. Exact dates may vary by 1–2 months.':'';
-
+ 
   // Pattern legend visibility
   document.getElementById('pleg').style.display=card.elevated.filter(i=>i>=0).length?'flex':'none';
-
+ 
   const datasets=[{
     label:'Public offer',data:cd.pubData,
     borderColor:ic.line,backgroundColor:ic.fill,borderWidth:2.5,
@@ -2469,12 +2509,12 @@ function drawChart(card){
     pointRadius:3,pointHoverRadius:6,pointBackgroundColor:ic.tgt,
     pointBorderColor:'#fff',pointBorderWidth:1.5,tension:.3,fill:false,spanGaps:true
   });
-
+ 
   // Build pattern/peak annotations as chartjs plugins manually via afterDraw
   const allPub=cd.pubData.filter(Boolean);
   const peakVal=allPub.length?Math.max(...allPub):null;
   const peakIdx=peakVal!==null?cd.pubData.indexOf(peakVal):-1;
-
+ 
   // Elevated indices in current view
   let elevIdxsInView=[];
   if(viewMode==='all'){
@@ -2487,10 +2527,10 @@ function drawChart(card){
   } else if(viewMode==='monthly'){
     elevIdxsInView=card.elevated.filter(i=>i>=0);
   }
-
+ 
   const ctx=document.getElementById('mc2').getContext('2d');
   const hoverNote=document.getElementById('hn2');
-
+ 
   // Custom pattern band plugin
   const patternPlugin={
     id:'patternBands',
@@ -2519,7 +2559,7 @@ function drawChart(card){
       }
     }
   };
-
+ 
   modalChart=new Chart(ctx,{
     type:'line',
     data:{labels:cd.labels,datasets},
@@ -2586,19 +2626,42 @@ function drawChart(card){
         const label=cd.labels[i];
         const pub=cd.pubData[i];
         const tgt=cd.tgtData?cd.tgtData[i]:null;
+        // spend req lookup
+        let spend='';
+        if(card.spendData){
+          if(viewMode==='monthly') spend=card.spendData[i]||'';
+          else if(viewMode==='year'&&cd.idxs) spend=card.spendData[cd.idxs[i]]||'';
+          else if(viewMode==='all'&&cd.years){
+            // find max-valued month in that year and use its spend
+            const y=cd.years[i];
+            const yIdxs=ALL_MONTHS.map((m,x)=>m.startsWith(y+'-')?x:-1).filter(x=>x>=0);
+            const peakIdx=yIdxs.reduce((best,x)=>(card.pub[x]||0)>(card.pub[best]||0)?x:best,yIdxs[0]);
+            spend=card.spendData[peakIdx]||'';
+          }
+        }
+        // fall back to parsing from current offer text
+        if(!spend&&card.current){
+          const m=card.current.match(/\$[\d,.]+k?\s*\/\s*\d+\s*(?:months?|mos?)/i);
+          if(m) spend=m[0];
+        }
         // note
         let note='';
         if(viewMode==='monthly'||viewMode==='year'){
           const ym=viewMode==='monthly'?ALL_MONTHS[i]:activeYear+'-'+String(i+1).padStart(2,'0');
           note=card.monthlyNotes&&card.monthlyNotes[ym]?card.monthlyNotes[ym]:'';
         } else if(viewMode==='all'&&cd.years){
-          // find any note for this year
           const y=cd.years[i];
           note=Object.entries(card.monthlyNotes||{}).filter(([k])=>k.startsWith(y+'-')).map(([,v])=>v).join(' ');
         }
         const isElev=elevIdxsInView.includes(i);
         hoverNote.style.display='block';
-        hoverNote.innerHTML=`<strong>${label}</strong> · Public: ${pub?((isCash?'$':'')+pub+(isCash?'':'K')):'N/A'}${tgt&&tgt>pub?` · Best targeted: ${isCash?'$':''}${tgt}${isCash?'':'K'}`:''}${isElev?' 🟡 <em>Historically elevated period</em>':''}${note?`<br>${note}`:''}`;
+        // Build full offer line
+        const valStr=pub?(isCash?('$'+pub):pub+'K pts'):'N/A';
+        const tgtStr=(tgt&&tgt>pub)?(isCash?(' · Targeted: $'+tgt):(' · Targeted: '+tgt+'K pts')):'';
+        const spendStr=spend?` after ${spend}`:'';
+        const elevStr=isElev?' &nbsp;🟡 <em>Historically elevated</em>':'';
+        const noteStr=note?`<br><span style="color:var(--g600)">${note}</span>`:'';
+        hoverNote.innerHTML=`<strong>${label}</strong><br><span style="font-size:13px;color:var(--g800)">${valStr}${tgtStr}${spendStr}</span>${elevStr}${noteStr}`;
       },
       scales:{
         x:{ticks:{font:{size:10},color:'#888',maxRotation:40,autoSkip:viewMode==='monthly',maxTicksLimit:viewMode==='monthly'?18:undefined},grid:{color:'rgba(0,0,0,.04)'}},
@@ -2609,13 +2672,13 @@ function drawChart(card){
   document.getElementById('hn').textContent='Hover a data point · 🟡 = historically elevated period · 🔴 = all-time peak · Sources: MonkeyMiles, FrequentMiler, UpgradedPoints, AwardWallet, DoctorofCredit, Slickdeals, USCreditCardGuide';
   hoverNote.style.display='none';
 }
-
+ 
 function closeModal(){
   document.getElementById('mo').classList.remove('open');
   document.body.style.overflow='';
   if(modalChart){modalChart.destroy();modalChart=null;}
 }
-
+ 
 document.getElementById('mcl').addEventListener('click',closeModal);
 document.getElementById('mo').addEventListener('click',e=>{if(e.target===document.getElementById('mo'))closeModal();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
@@ -2626,8 +2689,8 @@ document.getElementById('itabs').addEventListener('click',e=>{
   document.querySelectorAll('.tb').forEach(x=>x.classList.toggle('active',x===b));
   renderCards();
 });
-
-
+ 
+ 
 // ── Populate card dropdown ─────────────────────────────────────────────
 function populateDropdown(){
   const sel = document.getElementById('cardDropdown');
@@ -2649,7 +2712,7 @@ function populateDropdown(){
   });
 }
 populateDropdown();
-
+ 
 document.getElementById('cardDropdown').addEventListener('change', e => {
   const val = e.target.value;
   if(!val) {
@@ -2674,7 +2737,7 @@ document.getElementById('cardDropdown').addEventListener('change', e => {
   // Reset dropdown
   e.target.value = '';
 });
-
+ 
 // ── Great Offers toggle ────────────────────────────────────────────────
 let greatOffersMode = false;
 document.getElementById('greatOffersBtn').addEventListener('click', () => {
@@ -2682,7 +2745,7 @@ document.getElementById('greatOffersBtn').addEventListener('click', () => {
   document.getElementById('greatOffersBtn').classList.toggle('active', greatOffersMode);
   renderCards();
 });
-
+ 
 // Patch getFiltered to support great offers mode
 const _origGetFiltered = getFiltered;
 // Override getFiltered inline
@@ -2696,7 +2759,7 @@ function getFiltered(){
   if(greatOffersMode) cards = cards.filter(c => c.rating === 'great');
   return cards;
 }
-
+ 
 renderCards();
 </script>
 </body>

@@ -1,0 +1,2703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Credit Card Offer Tracker — Monkey Miles</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root{--black:#0d0d0d;--red:#c8102e;--red-dark:#9b0c22;--gold:#c9a84c;--gold-light:#f5ecd4;--white:#fff;--g50:#f8f8f8;--g100:#f0f0f0;--g200:#e0e0e0;--g400:#999;--g600:#555;--g800:#222;--green:#1a7a3a;--green-bg:#eaf5ee;--amber-bg:#fff8e6;--amber:#b07d1a;--pattern:#fff3cd;--pattern-border:#f0a500;--fd:'Oswald',sans-serif;--fb:'Source Sans 3',sans-serif;--r:6px;--rl:10px}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--fb);background:var(--g50);color:var(--g800);font-size:15px;line-height:1.5}
+.header{background:var(--black);padding:16px 22px 12px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:3px solid var(--red)}
+.hl{font-family:var(--fd);font-size:20px;font-weight:700;color:var(--white);letter-spacing:.04em}.hl span{color:var(--red)}
+.hsub{font-size:11px;color:var(--g400);margin-top:1px}
+.hup{font-size:11px;color:var(--g400)}
+.controls{background:var(--white);border-bottom:1px solid var(--g200);padding:12px 22px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;position:sticky;top:0;z-index:100}
+.sw{position:relative;flex:1;min-width:180px}
+.sw input{width:100%;padding:7px 10px 7px 32px;border:1px solid var(--g200);border-radius:var(--r);font-family:var(--fb);font-size:14px;background:var(--g50);outline:none;transition:border-color .15s}
+.sw input:focus{border-color:var(--red);background:var(--white)}
+.si{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--g400);font-size:14px;pointer-events:none}
+.itabs{display:flex;gap:5px;flex-wrap:wrap}
+.tb{padding:5px 11px;border:1px solid var(--g200);border-radius:var(--r);background:var(--white);font-family:var(--fd);font-size:11px;font-weight:500;letter-spacing:.04em;color:var(--g600);cursor:pointer;transition:all .15s;white-space:nowrap}
+.tb:hover{border-color:var(--red);color:var(--red)}
+.tb.active{background:var(--red);border-color:var(--red);color:var(--white)}
+.rc{font-size:11px;color:var(--g400);white-space:nowrap}
+.main{padding:18px 22px;max-width:1400px;margin:0 auto}
+.cg{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:13px}
+.card{background:var(--white);border:1px solid var(--g200);border-radius:var(--rl);overflow:hidden;transition:box-shadow .15s}
+.card:hover{box-shadow:0 3px 14px rgba(0,0,0,.09)}
+.ch{padding:13px 15px 9px;border-bottom:1px solid var(--g100);display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.cib{font-family:var(--fd);font-size:9px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:2px 7px;border-radius:3px;white-space:nowrap;flex-shrink:0}
+.cn{font-family:var(--fd);font-size:14px;font-weight:600;color:var(--black);line-height:1.25}
+.cf{font-size:11px;color:var(--g400);margin-top:2px}
+.cb{padding:11px 15px}
+.ol{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--g400);margin-bottom:3px}
+.ov{font-size:13px;color:var(--g800);line-height:1.35}
+.oh{color:var(--green);font-weight:600}
+.otag{display:inline-block;font-size:10px;padding:1px 6px;border-radius:3px;font-weight:600;letter-spacing:.04em;margin-left:5px;vertical-align:middle}
+.tg{background:var(--green-bg);color:var(--green)}
+.tgood{background:var(--amber-bg);color:var(--amber)}
+.tbl{background:var(--g100);color:var(--g600)}
+.rbw{margin:9px 0 3px}
+.rbl{display:flex;justify-content:space-between;font-size:10px;color:var(--g400);margin-bottom:3px}
+.rbt{height:5px;background:var(--g100);border-radius:3px;overflow:hidden}
+.rbf{height:100%;border-radius:3px;transition:width .4s}
+.cfoot{padding:9px 15px 11px;border-top:1px solid var(--g100);display:flex;gap:7px;align-items:center}
+.btn-chart{flex:1;padding:6px 9px;background:var(--black);color:var(--white);border:none;border-radius:var(--r);font-family:var(--fd);font-size:11px;font-weight:500;letter-spacing:.05em;cursor:pointer;transition:background .15s;display:flex;align-items:center;justify-content:center;gap:4px}
+.btn-chart:hover{background:var(--red)}
+.btn-learn{padding:6px 10px;background:var(--red);color:var(--white);border:none;border-radius:var(--r);font-family:var(--fd);font-size:11px;font-weight:500;letter-spacing:.05em;cursor:pointer;transition:background .15s;text-decoration:none;display:flex;align-items:center;gap:4px;white-space:nowrap}
+.btn-learn:hover{background:var(--red-dark)}
+.dc{font-size:10px;color:var(--g400);display:flex;align-items:center;gap:3px}
+.cd{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.ch2{background:var(--green)}
+.cm{background:var(--gold)}
+.cl{background:var(--g400)}
+.mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;align-items:center;justify-content:center;padding:16px}
+.mo.open{display:flex}
+.mdl{background:var(--white);border-radius:var(--rl);width:100%;max-width:760px;max-height:92vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.mh{padding:16px 18px 12px;border-bottom:1px solid var(--g200);display:flex;justify-content:space-between;align-items:flex-start;gap:10px;position:sticky;top:0;background:var(--white);z-index:2}
+.mt{font-family:var(--fd);font-size:16px;font-weight:600;color:var(--black)}
+.ms{font-size:11px;color:var(--g400);margin-top:2px}
+.mc{width:26px;height:26px;border-radius:50%;border:1px solid var(--g200);background:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px;color:var(--g600);transition:all .15s}
+.mc:hover{background:var(--g100)}
+.mb{padding:14px 18px 18px}
+.mst{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:9px;margin-bottom:16px}
+.msi{background:var(--g50);border-radius:var(--r);padding:9px 11px}
+.msil{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--g400);margin-bottom:2px}
+.msiv{font-size:17px;font-weight:600;color:var(--black);font-family:var(--fd)}
+.msiv.hl2{color:var(--red)}
+/* view tabs */
+.vtabs{display:flex;gap:4px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+.vt{padding:4px 10px;border:1px solid var(--g200);border-radius:var(--r);background:var(--white);font-family:var(--fd);font-size:11px;font-weight:500;letter-spacing:.04em;color:var(--g600);cursor:pointer;transition:all .15s}
+.vt:hover{border-color:var(--red);color:var(--red)}
+.vt.active{background:var(--black);border-color:var(--black);color:var(--white)}
+.vt-label{font-size:11px;color:var(--g400);margin-right:4px}
+.cw{position:relative;width:100%;height:270px;margin-bottom:12px}
+.hn{background:var(--g50);border-left:2.5px solid var(--g200);padding:8px 11px;font-size:11px;color:var(--g600);border-radius:0 var(--r) var(--r) 0;margin-bottom:7px;line-height:1.5}
+.hn.hov{border-left-color:var(--red);background:#fff7f7;color:var(--g800)}
+/* pattern legend */
+.pleg{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:10px;font-size:11px;color:var(--g600);align-items:center}
+.pleg-item{display:flex;align-items:center;gap:5px}
+.pleg-box{width:14px;height:10px;border-radius:2px}
+.cl2{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:10px}
+.li{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--g600)}
+.ls{width:20px;height:2.5px;border-radius:2px}
+.ld{width:20px;height:0;border-top:2px dashed}
+.nr{text-align:center;padding:50px 20px;color:var(--g400)}
+.nr-i{font-size:36px;margin-bottom:10px}
+.is{margin-bottom:26px}
+.ih{font-family:var(--fd);font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--g600);padding:0 0 7px;border-bottom:2px solid var(--g200);margin-bottom:13px;display:flex;align-items:center;gap:7px}
+.ic{background:var(--g200);color:var(--g600);font-size:10px;padding:1px 6px;border-radius:10px;font-weight:600}
+.badge-amex{background:#e8f0fb;color:#1a4a9b}
+.badge-chase{background:#eaf3ff;color:#0063a5}
+.badge-co{background:#fff0e6;color:#9b3a00}
+.badge-citi{background:#e6f4fb;color:#005a8e}
+.badge-barclay{background:#f0eaff;color:#4a1d9b}
+.badge-boa{background:#e8f5ef;color:#1a6b3a}
+.badge-bilt{background:#f5f0ff;color:#5e2da0}
+.badge-usb{background:#f5f5f0;color:#555533}
+.approx-note{font-size:10px;color:var(--g400);font-style:italic;margin-top:4px}
+.card-dd-wrap{position:relative;flex-shrink:0}
+.card-dd{padding:7px 28px 7px 10px;border:1px solid var(--g200);border-radius:var(--r);font-family:var(--fb);font-size:13px;background:var(--g50);color:var(--g800);outline:none;cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23999'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;min-width:180px;max-width:220px;transition:border-color .15s}
+.card-dd:focus{border-color:var(--red);background-color:var(--white)}
+.btn-great-offers{display:flex;align-items:center;gap:6px;padding:7px 13px;background:var(--white);border:1.5px solid var(--green);border-radius:var(--r);font-family:var(--fd);font-size:12px;font-weight:600;letter-spacing:.04em;color:var(--green);cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0}
+.btn-great-offers:hover,.btn-great-offers.active{background:var(--green);color:var(--white)}
+.btn-great-offers.active .great-dot{background:var(--white)}
+.great-dot{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0;animation:pulse 1.8s ease-in-out infinite}
+.btn-great-offers.active .great-dot{animation:none}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+@media(max-width:600px){.header{padding:10px 12px}.controls{padding:8px 12px}.main{padding:12px}.mdl{max-height:96vh}}
+</style>
+</head>
+<body>
+<div class="header">
+  <div>
+    <div class="hl">MONKEY<span>MILES</span> · Card Offer Tracker</div>
+    <div class="hsub">Current offers · all-time bests · monthly history · elevated offer patterns</div>
+  </div>
+  <div class="hup">Updated Jun 15, 2026</div>
+</div>
+<div class="controls">
+  <div class="sw">
+    <span class="si">&#9906;</span>
+    <input type="text" id="srch" placeholder="Search cards, airlines, hotels, issuers…" autocomplete="off">
+  </div>
+  <div class="card-dd-wrap">
+    <select id="cardDropdown" class="card-dd">
+      <option value="">Browse all cards…</option>
+    </select>
+  </div>
+  <button class="btn-great-offers" id="greatOffersBtn">
+    <span class="great-dot"></span>Great Offers
+  </button>
+  <div class="itabs" id="itabs">
+    <button class="tb active" data-i="all">All</button>
+    <button class="tb" data-i="amex">Amex</button>
+    <button class="tb" data-i="chase">Chase</button>
+    <button class="tb" data-i="co">Capital One</button>
+    <button class="tb" data-i="citi">Citi</button>
+    <button class="tb" data-i="barclay">Barclay</button>
+    <button class="tb" data-i="boa">BofA</button>
+    <button class="tb" data-i="bilt">Bilt</button>
+    <button class="tb" data-i="usb">US Bank</button>
+  </div>
+  <span class="rc" id="rc"></span>
+</div>
+
+<div class="mo" id="mo">
+  <div class="mdl" id="mdl">
+    <div class="mh">
+      <div><div class="mt" id="mt"></div><div class="ms" id="mss"></div></div>
+      <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+        <a class="btn-learn" id="modalLearnMore" href="#" target="_blank" rel="noopener" style="display:none">Learn More ↗</a>
+        <button class="mc" id="mcl">✕</button>
+      </div>
+    </div>
+    <div class="mb">
+      <div class="mst" id="mst"></div>
+      <div class="vtabs" id="vtabs">
+        <span class="vt-label">View:</span>
+        <button class="vt active" data-v="all">All Years</button>
+        <div id="yr-btns"></div>
+        <button class="vt" data-v="monthly">Monthly</button>
+      </div>
+      <div class="cl2" id="cleg"></div>
+      <div class="pleg" id="pleg">
+        <div class="pleg-item"><div class="pleg-box" style="background:rgba(255,193,7,.25);border:1px solid #f0a500"></div>Historically elevated period</div>
+        <div class="pleg-item"><div class="pleg-box" style="background:rgba(200,16,46,.12);border:1px solid #c8102e"></div>All-time peak</div>
+      </div>
+      <div class="cw"><canvas id="mc2" role="img" aria-label="Offer history chart"></canvas></div>
+      <div class="hn" id="hn">Hover a data point to see details</div>
+      <div class="hn hov" id="hn2" style="display:none"></div>
+      <div class="approx-note" id="approx-note"></div>
+    </div>
+  </div>
+</div>
+
+<div class="main" id="main"></div>
+
+<script>
+// ── ISSUER CONFIG ─────────────────────────────────────────────────────────────
+const IC = {
+  amex:   {line:'#1a4a9b',fill:'rgba(26,74,155,.07)',tgt:'#85aade',badge:'badge-amex',lbl:'American Express'},
+  chase:  {line:'#0063a5',fill:'rgba(0,99,165,.07)',tgt:'#6ab0e0',badge:'badge-chase',lbl:'Chase'},
+  co:     {line:'#9b3a00',fill:'rgba(155,58,0,.07)',tgt:'#d4906a',badge:'badge-co',lbl:'Capital One'},
+  citi:   {line:'#005a8e',fill:'rgba(0,90,142,.07)',tgt:'#70b0d4',badge:'badge-citi',lbl:'Citi'},
+  barclay:{line:'#4a1d9b',fill:'rgba(74,29,155,.07)',tgt:'#9a70d4',badge:'badge-barclay',lbl:'Barclay'},
+  boa:    {line:'#1a6b3a',fill:'rgba(26,107,58,.07)',tgt:'#70b490',badge:'badge-boa',lbl:'Bank of America'},
+  bilt:   {line:'#5e2da0',fill:'rgba(94,45,160,.07)',tgt:'#a880d4',badge:'badge-bilt',lbl:'Bilt'},
+  usb:    {line:'#555533',fill:'rgba(85,85,51,.07)',tgt:'#999977',badge:'badge-usb',lbl:'US Bank'}
+};
+
+// Helper: generate monthly array from Jan 2016 to Jun 2026 (126 months)
+function makeMonths(){
+  const out=[];
+  for(let y=2016;y<=2026;y++){
+    const end = y===2026?6:12;
+    for(let m=1;m<=end;m++) out.push(`${y}-${String(m).padStart(2,'0')}`);
+  }
+  return out;
+}
+const ALL_MONTHS = makeMonths(); // 126 entries
+
+function ymLabel(ym){
+  const [y,m]=ym.split('-');
+  const mn=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return mn[parseInt(m)-1]+' '+y;
+}
+
+// ── CARD DATA ─────────────────────────────────────────────────────────────────
+// monthly.pub: array of 126 values (null = no card yet or no data), indexed to ALL_MONTHS
+// monthly.tgt: targeted offers
+// elevated: array of month-indices where historically elevated (for pattern band)
+// notes indexed to ALL_MONTHS (sparse object)
+// approx: true if data is quarterly estimates
+
+// Helper: fill a monthly array given breakpoints [{from:'YYYY-MM',val:N}]
+function fillMonths(breaks, tgtBreaks){
+  const pub=new Array(126).fill(null);
+  const tgt=new Array(126).fill(null);
+  breaks.forEach(({from,to,val})=>{
+    const fi=ALL_MONTHS.indexOf(from);
+    const ti=to?ALL_MONTHS.indexOf(to):125;
+    if(fi<0)return;
+    for(let i=fi;i<=Math.min(ti,125);i++) pub[i]=val;
+  });
+  if(tgtBreaks) tgtBreaks.forEach(({from,to,val})=>{
+    const fi=ALL_MONTHS.indexOf(from);
+    const ti=to?ALL_MONTHS.indexOf(to):125;
+    if(fi<0)return;
+    for(let i=fi;i<=Math.min(ti,125);i++) tgt[i]=val;
+  });
+  return{pub,tgt};
+}
+
+const CARDS=[
+// ═══════════════════════════════════════════════════════════════
+// AMEX
+// ═══════════════════════════════════════════════════════════════
+{id:'amex-plat',issuer:'amex',name:'American Express Platinum Card®',af:895,
+ current:'As high as 175k after $12k / 6 months',atb:'175k after $8k / 6 months (Jun 2025)',
+ rating:'great',conf:'high',
+ link:'https://monkeymiles.boardingarea.com/american-express-platinum/',
+ tags:['amex','platinum','membership rewards','personal'],
+ approx:false,
+ elevated:[/* months that historically saw elevated public offers */
+   // Aug 2020–Dec 2020 (COVID 75K), Aug 2021–Oct 2021 (100K launch), Jan 2022, Oct 2022, Apr 2025, Sep 2025
+   ALL_MONTHS.indexOf('2020-08'),ALL_MONTHS.indexOf('2020-09'),ALL_MONTHS.indexOf('2020-10'),ALL_MONTHS.indexOf('2020-11'),ALL_MONTHS.indexOf('2020-12'),
+   ALL_MONTHS.indexOf('2021-08'),ALL_MONTHS.indexOf('2021-09'),ALL_MONTHS.indexOf('2021-10'),
+   ALL_MONTHS.indexOf('2022-01'),ALL_MONTHS.indexOf('2022-02'),
+   ALL_MONTHS.indexOf('2024-09'),ALL_MONTHS.indexOf('2024-10'),
+   ALL_MONTHS.indexOf('2025-04'),ALL_MONTHS.indexOf('2025-09'),ALL_MONTHS.indexOf('2025-10')
+ ],
+ monthlyNotes:{
+   '2016-01':'25K standard offer. $450 annual fee. Plastic card.',
+   '2017-03':'Metal card launches. Fee raised to $550. Offer unchanged at 40K.',
+   '2020-08':'COVID elevation — public offer raised from 60K to 75K.',
+   '2021-08':'Mega-refresh: fee $550→$695. First-ever 100K public offer. New credits added.',
+   '2022-01':'Public offer settled to 100K after refresh launch momentum.',
+   '2022-06':'Offer pulled back to 80K. Targeted 100-125K still available.',
+   '2024-09':'"As High As" system debuts. Fee $695→$895.',
+   '2026-01':'Spend req doubled to $12K for 175K ceiling.',
+ },
+ ...fillMonths([
+   {from:'2016-01',to:'2017-02',val:25},
+   {from:'2017-03',to:'2018-05',val:40},// post-metal, same bonus
+   {from:'2018-06',to:'2020-07',val:60},
+   {from:'2020-08',to:'2021-07',val:75},
+   {from:'2021-08',to:'2021-12',val:100},
+   {from:'2022-01',to:'2022-05',val:100},
+   {from:'2022-06',to:'2022-11',val:80},
+   {from:'2022-12',to:'2023-06',val:90},
+   {from:'2023-07',to:'2024-08',val:100},
+   {from:'2024-09',to:'2025-12',val:175},
+   {from:'2026-01',to:'2026-06',val:175},
+ ],[
+   {from:'2018-01',to:'2020-07',val:100},
+   {from:'2020-08',to:'2021-07',val:125},
+   {from:'2021-08',to:'2024-08',val:150},
+   {from:'2024-09',to:'2026-06',val:175},
+ ])
+},
+{id:'amex-plat-schwab',issuer:'amex',name:'American Express Platinum Card® for Schwab',af:895,
+ current:'150k after $12k / 6 months',atb:'150k + 15x on dining',
+ rating:'great',conf:'med',
+ link:'https://www.schwab.com/credit-cards/platinum-card',
+ tags:['amex','platinum','schwab','membership rewards','personal'],
+ approx:true,
+ elevated:[
+   ALL_MONTHS.indexOf('2021-08'),ALL_MONTHS.indexOf('2021-09'),ALL_MONTHS.indexOf('2021-10'),
+   ALL_MONTHS.indexOf('2024-09'),ALL_MONTHS.indexOf('2025-04'),
+ ],
+ monthlyNotes:{
+   '2021-08':'Mega-refresh: fee $550→$695. Offer raised alongside main Platinum.',
+   '2024-09':'Fee raised to $895 alongside main Platinum family.',
+   '2026-06':'Current: 150K after $12K / 6 months. Spend req higher than prior best (175K after $8K).',
+ },
+ ...fillMonths([
+   {from:'2016-01',to:'2017-02',val:25},
+   {from:'2017-03',to:'2018-05',val:40},
+   {from:'2018-06',to:'2020-07',val:60},
+   {from:'2020-08',to:'2021-07',val:75},
+   {from:'2021-08',to:'2022-05',val:100},
+   {from:'2022-06',to:'2023-06',val:80},
+   {from:'2023-07',to:'2024-08',val:100},
+   {from:'2024-09',to:'2026-06',val:150},
+ ],[
+   {from:'2018-01',to:'2020-07',val:100},
+   {from:'2020-08',to:'2021-07',val:125},
+   {from:'2021-08',to:'2026-06',val:150},
+ ])
+},
+{id:'amex-plat-ms',issuer:'amex',name:'American Express Platinum Card® for Morgan Stanley',af:895,
+ current:'150k after $12k spend / 6 months (additional cardmember free)',atb:'150k + 15x on dining',
+ rating:'great',conf:'med',
+ link:'https://apply.americanexpress.com/amex-morgan-stanley-credit-cards/?page_url=38',
+ tags:['amex','platinum','morgan stanley','membership rewards','personal'],
+ approx:true,
+ elevated:[
+   ALL_MONTHS.indexOf('2021-08'),ALL_MONTHS.indexOf('2021-09'),ALL_MONTHS.indexOf('2021-10'),
+   ALL_MONTHS.indexOf('2024-09'),ALL_MONTHS.indexOf('2025-04'),
+ ],
+ monthlyNotes:{
+   '2021-08':'Mega-refresh: fee $550→$695. Offer raised alongside main Platinum.',
+   '2024-09':'Fee raised to $895. Additional cardmember benefit retained.',
+   '2026-06':'Current: 150K after $12K / 6 months. Additional cardmember at no extra charge.',
+ },
+ ...fillMonths([
+   {from:'2016-01',to:'2017-02',val:25},
+   {from:'2017-03',to:'2018-05',val:40},
+   {from:'2018-06',to:'2020-07',val:60},
+   {from:'2020-08',to:'2021-07',val:75},
+   {from:'2021-08',to:'2022-05',val:100},
+   {from:'2022-06',to:'2023-06',val:80},
+   {from:'2023-07',to:'2024-08',val:100},
+   {from:'2024-09',to:'2026-06',val:150},
+ ],[
+   {from:'2018-01',to:'2020-07',val:100},
+   {from:'2020-08',to:'2021-07',val:125},
+   {from:'2021-08',to:'2026-06',val:150},
+ ])
+},
+{id:'amex-gold',issuer:'amex',name:'American Express® Gold Card',af:325,
+ current:'As high as 100k after $8k spend / 6 months',atb:'100k after $6k in 6 months + 20% back on restaurants',
+ rating:'great',conf:'high',
+ link:'https://monkeymiles.boardingarea.com/american-express-gold/',
+ tags:['amex','gold','membership rewards','personal','dining'],
+ approx:false,
+ elevated:[
+   ALL_MONTHS.indexOf('2021-10'),ALL_MONTHS.indexOf('2021-11'),ALL_MONTHS.indexOf('2021-12'),
+   ALL_MONTHS.indexOf('2022-08'),ALL_MONTHS.indexOf('2022-09'),ALL_MONTHS.indexOf('2022-10'),
+   ALL_MONTHS.indexOf('2023-03'),ALL_MONTHS.indexOf('2023-04'),ALL_MONTHS.indexOf('2023-05'),
+   ALL_MONTHS.indexOf('2025-01'),ALL_MONTHS.indexOf('2025-02'),ALL_MONTHS.indexOf('2025-03'),
+ ],
+ monthlyNotes:{
+   '2018-10':'Card rebranded from Premier Rewards Gold to Gold Card. Fee $195→$250.',
+   '2021-10':'All-time high 100K public offer. Limited window.',
+   '2022-08':'80K elevated offer.',
+   '2023-03':'75K public offer runs spring 2023.',
+   '2024-10':'Card refresh: fee $250→$325. New credits added.',
+   '2025-09':'Personalized "As High As 100K" system adopted.',
+ },
+ ...fillMonths([
+   {from:'2016-01',to:'2018-09',val:25},
+   {from:'2018-10',to:'2019-06',val:35},
+   {from:'2019-07',to:'2020-11',val:50},
+   {from:'2020-12',to:'2021-09',val:60},
+   {from:'2021-10',to:'2021-12',val:90},
+   {from:'2022-01',to:'2022-07',val:60},
+   {from:'2022-08',to:'2022-10',val:80},
+   {from:'2022-11',to:'2023-02',val:60},
+   {from:'2023-03',to:'2023-05',val:75},
+   {from:'2023-06',to:'2024-09',val:60},
+   {from:'2024-10',to:'2025-08',val:75},
+   {from:'2025-09',to:'2026-06',val:100},
+ ],[
+   {from:'2020-01',to:'2021-09',val:75},
+   {from:'2021-10',to:'2021-12',val:100},
+   {from:'2022-01',to:'2025-08',val:90},
+   {from:'2025-09',to:'2026-06',val:100},
+ ])
+},
+{id:'amex-biz-plat',issuer:'amex',name:'Business Platinum Card® from American Express',af:895,
+ current:'As high as 300k after $20k spend / 3 months',atb:'As high as 300k targeted with $20k in 3 months',
+ rating:'great',conf:'high',
+ link:'https://monkeymiles.boardingarea.com/american-express-business-platinum-overview/',
+ tags:['amex','platinum','business','membership rewards'],
+ approx:false,
+ elevated:[
+   ALL_MONTHS.indexOf('2021-09'),ALL_MONTHS.indexOf('2021-10'),ALL_MONTHS.indexOf('2021-11'),
+   ALL_MONTHS.indexOf('2023-01'),ALL_MONTHS.indexOf('2023-02'),ALL_MONTHS.indexOf('2023-03'),
+   ALL_MONTHS.indexOf('2024-09'),ALL_MONTHS.indexOf('2024-10'),
+   ALL_MONTHS.indexOf('2025-08'),ALL_MONTHS.indexOf('2025-09'),ALL_MONTHS.indexOf('2025-10'),
+ ],
+ monthlyNotes:{
+   '2021-10':'Fee $595→$695. Public offer hits 120K.',
+   '2023-01':'Elevated 150K offers appeared early 2023.',
+   '2024-09':'200K public offers introduced.',
+   '2025-08':'Card refresh Sep 2025. 250K+ offers seen.',
+ },
+ ...fillMonths([
+   {from:'2016-01',to:'2019-12',val:75},
+   {from:'2020-01',to:'2021-09',val:85},
+   {from:'2021-10',to:'2022-12',val:120},
+   {from:'2023-01',to:'2023-06',val:150},
+   {from:'2023-07',to:'2024-08',val:120},
+   {from:'2024-09',to:'2025-07',val:200},
+   {from:'2025-08',to:'2026-06',val:250},
+ ],[
+   {from:'2016-01',to:'2020-12',val:100},
+   {from:'2021-01',to:'2021-09',val:150},
+   {from:'2021-10',to:'2024-08',val:150},
+   {from:'2024-09',to:'2025-07',val:250},
+   {from:'2025-08',to:'2026-06',val:300},
+ ])
+},
+{id:'amex-biz-gold',issuer:'amex',name:'American Express® Business Gold Card',af:375,
+ current:'As high as 200k after $15k spend / 3 months',atb:'As high as 200k after $15k spend in 3 months',
+ rating:'great',conf:'high',
+ link:'https://monkeymiles.boardingarea.com/amex-business-gold/',
+ tags:['amex','gold','business','membership rewards'],
+ approx:true,
+ elevated:[
+   ALL_MONTHS.indexOf('2022-01'),ALL_MONTHS.indexOf('2022-02'),
+   ALL_MONTHS.indexOf('2023-09'),ALL_MONTHS.indexOf('2023-10'),
+   ALL_MONTHS.indexOf('2025-03'),ALL_MONTHS.indexOf('2025-04'),
+ ],
+ monthlyNotes:{'2025-04':'200K offers confirmed on MonkeyMiles.'},
+ ...fillMonths([
+   {from:'2018-01',to:'2019-12',val:35},
+   {from:'2020-01',to:'2021-06',val:50},
+   {from:'2021-07',to:'2022-03',val:70},
+   {from:'2022-04',to:'2023-08',val:70},
+   {from:'2023-09',to:'2024-12',val:100},
+   {from:'2025-01',to:'2026-06',val:175},
+ ],[
+   {from:'2021-01',to:'2023-08',val:130},
+   {from:'2023-09',to:'2024-12',val:150},
+   {from:'2025-01',to:'2026-06',val:200},
+ ])
+},
+{id:'amex-green',issuer:'amex',name:'American Express® Green Card',af:150,
+ current:'40k after $3k spend / 6 months',atb:'60k after $3k/6mos + 20% off travel and transit',
+ rating:'good',conf:'med',
+ link:'https://monkeymiles.boardingarea.com/american-express-green-card/',
+ tags:['amex','green','membership rewards','personal'],
+ approx:true,
+ elevated:[ALL_MONTHS.indexOf('2023-05'),ALL_MONTHS.indexOf('2023-06'),ALL_MONTHS.indexOf('2023-07')],
+ monthlyNotes:{'2019-10':'Card relaunched at $150. 30K offer.','2023-05':'60K + 20% travel bonus — best ever.'},
+ ...fillMonths([
+   {from:'2019-10',to:'2021-06',val:30},
+   {from:'2021-07',to:'2023-04',val:45},
+   {from:'2023-05',to:'2023-07',val:60},
+   {from:'2023-08',to:'2025-08',val:40},
+   {from:'2025-09',to:'2025-11',val:60},
+   {from:'2025-12',to:'2026-06',val:40},
+ ],[
+   {from:'2021-07',to:'2026-06',val:60},
+ ])
+},
+{id:'amex-bbp',issuer:'amex',name:'American Express® Blue Business Plus',af:0,
+ current:'15k after $3k / 3 months',atb:'50k public link (75k targeted)',
+ rating:'below',conf:'med',
+ link:'https://monkeymiles.boardingarea.com/amex-blue-business-plus/',
+ tags:['amex','blue business','no fee','membership rewards','business'],
+ approx:true,
+ elevated:[ALL_MONTHS.indexOf('2021-06'),ALL_MONTHS.indexOf('2021-07'),ALL_MONTHS.indexOf('2021-08')],
+ monthlyNotes:{},
+ ...fillMonths([
+   {from:'2016-01',to:'2020-06',val:10},
+   {from:'2020-07',to:'2026-06',val:15},
+ ],[
+   {from:'2021-06',to:'2026-06',val:50},
+ ])
+},
+{id:'amex-bbc',issuer:'amex',name:'American Express® Blue Business Cash',af:0,
+ current:'$250 after $5k / 6 months',atb:'$250 after $2k in 3 months (public) / $600 targeted',
+ rating:'below',conf:'med',
+ link:'https://monkeymiles.boardingarea.com/monkey-miles-top-credit-card-picks/',
+ tags:['amex','blue business cash','no fee','business','cash'],
+ approx:true,
+ elevated:[],
+ monthlyNotes:{},
+ isCash:true,
+ ...fillMonths([
+   {from:'2016-01',to:'2019-12',val:200},
+   {from:'2020-01',to:'2026-06',val:250},
+ ],[
+   {from:'2021-01',to:'2026-06',val:500},
+ ])
+},
+{id:'amex-biz-green',issuer:'amex',name:'American Express® Business Green Card',af:0,
+ current:'15k after $3k / 3 months',atb:'15k after $3k in 3 months',
+ rating:'below',conf:'low',
+ link:'https://monkeymiles.boardingarea.com/monkey-miles-top-credit-card-picks/',
+ tags:['amex','business green','no fee','membership rewards','business'],
+ approx:true,
+ elevated:[],
+ monthlyNotes:{},
+ ...fillMonths([{from:'2016-01',to:'2026-06',val:15}])
+},
+{id:'amex-hilton-honors',issuer:'amex',name:'Hilton Honors American Express Card',af:0,
+ current:'80k after $2k spend / 6 months',atb:'100k after $1k spend in 3 months + free night',
+ rating:'good',conf:'med',
+ link:'https://monkeymiles.boardingarea.com/amex-hilton-credit-cards/',
+ tags:['amex','hilton','honors','hotel','personal','no fee'],
+ approx:true,
+ elevated:[ALL_MONTHS.indexOf('2022-04'),ALL_MONTHS.indexOf('2023-09'),ALL_MONTHS.indexOf('2024-09')],
+ monthlyNotes:{},
+ ...fillMonths([
+   {from:'2016-01',to:'2020-12',val:75},
+   {from:'2021-01',to:'2022-06',val:80},
+   {from:'2022-07',to:'2025-09',val:80},
+   {from:'2025-10',to:'2026-01',val:100},
+   {from:'2026-02',to:'2026-02',val:70},
+   {from:'2026-03',to:'2026-04',val:80},
+   {from:'2026-05',to:'2026-06',val:100},
+ ],[
+   {from:'2021-01',to:'2025-09',val:100},
+   {from:'2025-10',to:'2026-01',val:100},
+   {from:'2026-02',to:'2026-02',val:80},
+   {from:'2026-03',to:'2026-06',val:100},
+ ])
+},
+{id:'amex-hilton-surpass',issuer:'amex',name:'Hilton Honors American Express Surpass® Card',af:150,
+ current:'130k after $3k spend / 6 months',atb:'180k after $3k / 3 months or 130k + free night after $2k / 3 months',
+ rating:'great',conf:'med',
+ link:'https://monkeymiles.boardingarea.com/amex-hilton-credit-cards/',
+ tags:['amex','hilton','surpass','hotel','personal'],
+ approx:true,
+ elevated:[ALL_MONTHS.indexOf('2023-08'),ALL_MONTHS.indexOf('2023-09'),ALL_MONTHS.indexOf('2024-09')],
+ monthlyNotes:{},
+ ...fillMonths([
+   {from:'2016-01',to:'2020-06',val:75},
+   {from:'2020-07',to:'2022-06',val:100},
+   {from:'2022-07',to:'2023-06',val:125},
+   {from:'2023-07',to:'2025-01',val:130},
+   {from:'2025-02',to:'2025-05',val:150},
+   {from:'2025-06',to:'2025-09',val:130},
+   {from:'2025-10',to:'2026-01',val:155},
+   {from:'2026-02',to:'2026-06',val:130},
+ ],[
+   {from:'2022-01',to:'2023-06',val:150},
+   {from:'2023-07',to:'2026-06',val:180},
+ ])
+},
+{id:'amex-hilton-aspire',issuer:'amex',name:'Hilton Honors American Express Aspire Card',af:550,
+ current:'175k after $6k spend / 6 months (ends 7/29/26)',atb:'175k after $6k / 6 months (Apr 2026)',
+ rating:'great',conf:'high',
+ link:'https://monkeymiles.boardingarea.com/amex-hilton-credit-cards/',
+ tags:['amex','hilton','aspire','hotel','personal'],
+ approx:true,
+ elevated:[ALL_MONTHS.indexOf('2022-09'),ALL_MONTHS.indexOf('2023-09')],
+ monthlyNotes:{},
+ ...fillMonths([
+   {from:'2018-01',to:'2021-06',val:100},
+   {from:'2021-07',to:'2022-06',val:130},
+   {from:'2022-07',to:'2025-05',val:150},
+   {from:'2025-06',to:'2025-06',val:175},
+   {from:'2025-07',to:'2025-09',val:150},
+   {from:'2025-10',to:'2026-01',val:175},
+   {from:'2026-02',to:'2026-02',val:150},
+   {from:'2026-03',to:'2026-04',val:175},
+   {from:'2026-05',to:'2026-06',val:175},
+ ],[
+   {from:'2022-01',to:'2025-05',val:150},
+   {from:'2025-06',to:'2026-06',val:175},
+ ])
+},
+{id:'amex-hilton-biz',issuer:'amex',name:'Hilton Honors American Express Business Card',af:195,
+ current:'130k after $6k spend / 3 months (AF waived first year)',atb:'175k + 1 free night after $4k / 3 months (Feb 2026)',
+ rating:'great',conf:'med',
+ link:'https://monkeymiles.boardingarea.com/amex-hilton-credit-cards/',
+ tags:['amex','hilton','business','hotel'],
+ approx:true,
+ elevated:[ALL_MONTHS.indexOf('2023-08'),ALL_MONTHS.indexOf('2024-10')],
+ monthlyNotes:{},
+ ...fillMonths([
+   {from:'2019-01',to:'2021-06',val:75},
+   {from:'2021-07',to:'2022-12',val:125},
+   {from:'2023-01',to:'2025-09',val:130},
+   {from:'2025-10',to:'2026-01',val:175},
+   {from:'2026-02',to:'2026-02',val:130},
+   {from:'2026-03',to:'2026-04',val:175},
+   {from:'2026-05',to:'2026-06',val:130},
+ ],[
+   {from:'2022-01',to:'2023-06',val:150},
+   {from:'2023-07',to:'2025-09',val:165},
+   {from:'2025-10',to:'2026-01',val:175},
+   {from:'2026-02',to:'2026-02',val:165},
+   {from:'2026-03',to:'2026-04',val:175},
+   {from:'2026-05',to:'2026-06',val:165},
+ ])
+},
+{id:'amex-marr-brilliant',issuer:'amex',name:'Marriott Bonvoy Brilliant® American Express® Card',af:650,
+ current:'200k after $6k / 6 months',atb:'200k after $6k / 6 months',
+ rating:'great',conf:'high',
+ link:'https://monkeymiles.boardingarea.com/marriott-credit-card-offers/',
+ tags:['amex','marriott','brilliant','hotel','personal'],
+ approx:false,
+ elevated:[
+   ALL_MONTHS.indexOf('2021-09'),ALL_MONTHS.indexOf('2021-10'),ALL_MONTHS.indexOf('2021-11'),
+   ALL_MONTHS.indexOf('2023-06'),ALL_MONTHS.indexOf('2023-07'),
+   ALL_MONTHS.indexOf('2024-01'),ALL_MONTHS.indexOf('2024-02'),ALL_MONTHS.indexOf('2024-03'),
+   ALL_MONTHS.indexOf('2024-09'),ALL_MONTHS.indexOf('2024-10'),
+   ALL_MONTHS.indexOf('2025-03'),ALL_MONTHS.indexOf('2025-04'),
+   ALL_MONTHS.indexOf('2025-08'),ALL_MONTHS.indexOf('2025-09'),
+   ALL_MONTHS.indexOf('2026-03'),ALL_MONTHS.indexOf('2026-04'),
+ ],
+ monthlyNotes:{
+   '2021-03':'125K offer confirmed (Slickdeals Mar 20 2021). Up from 75K standard.',
+   '2021-09':'150K + free night — best ever at the time. FrequentMiler confirmed Sep–Nov 2021.',
+   '2021-12':'Offer pulled back to 75K after elevated window closed.',
+   '2022-09':'Standard settled at 85K–95K through 2022.',
+   '2023-06':'150K tiered offer: 100K after $6K + 50K after additional $2K. UpgradedPoints confirmed.',
+   '2024-01':'185K elevated offer. Slickdeals: "offer ends 5/1/2024". Matches best ever at time.',
+   '2024-09':'185K relaunched — FrequentMiler confirmed "best ever 185K back again" Sep 2024.',
+   '2024-11':'Back to 95K–100K standard.',
+   '2026-03':'200K all-time best launched March 2026. FrequentMiler: "record-high standalone bonus."',
+   '2026-05':'200K offer ended May 13, 2026. Back to 100K standard.',
+ },
+ ...fillMonths([
+   {from:'2016-01',to:'2020-12',val:75},
+   {from:'2021-01',to:'2021-02',val:75},
+   {from:'2021-03',to:'2021-08',val:125},
+   {from:'2021-09',to:'2021-11',val:150},
+   {from:'2021-12',to:'2022-08',val:75},
+   {from:'2022-09',to:'2023-05',val:95},
+   {from:'2023-06',to:'2023-07',val:150},
+   {from:'2023-08',to:'2023-12',val:95},
+   {from:'2024-01',to:'2024-03',val:185},
+   {from:'2024-04',to:'2024-08',val:95},
+   {from:'2024-09',to:'2024-10',val:185},
+   {from:'2024-11',to:'2025-02',val:100},
+   {from:'2025-03',to:'2025-04',val:185},
+   {from:'2025-05',to:'2025-07',val:150},
+   {from:'2025-08',to:'2025-09',val:185},
+   {from:'2025-10',to:'2026-02',val:100},
+   {from:'2026-03',to:'2026-04',val:200},
+   {from:'2026-05',to:'2026-06',val:100},
+ ],[
+   {from:'2021-01',to:'2021-08',val:150},
+   {from:'2021-09',to:'2021-11',val:150},
+   {from:'2021-12',to:'2023-12',val:150},
+   {from:'2024-01',to:'2024-03',val:185},
+   {from:'2024-04',to:'2024-08',val:150},
+   {from:'2024-09',to:'2024-10',val:185},
+   {from:'2024-11',to:'2026-02',val:150},
+   {from:'2026-03',to:'2026-04',val:200},
+   {from:'2026-05',to:'2026-06',val:150},
+ ])
+},
+{id:'amex-marr-bevy',issuer:'amex',name:'Marriott Bonvoy Bevy™ American Express® Card',af:250,
+ current:'175k after $5k / 6 months',atb:'175k after $5k / 6 months',
+ rating:'great',conf:'high',
+ link:'https://monkeymiles.boardingarea.com/marriott-credit-card-offers/',
+ tags:['amex','marriott','bevy','hotel','personal'],
+ approx:false,
+ elevated:[
+   ALL_MONTHS.indexOf('2024-01'),ALL_MONTHS.indexOf('2024-02'),ALL_MONTHS.indexOf('2024-03'),
+   ALL_MONTHS.indexOf('2024-09'),ALL_MONTHS.indexOf('2024-10'),
+   ALL_MONTHS.indexOf('2026-03'),ALL_MONTHS.indexOf('2026-04'),
+ ],
+ monthlyNotes:{
+   '2022-09':'Card launched Sep 2022. 125K after $4K/3 months.',
+   '2023-06':'125K + 50K after 6 eligible hotel stays bonus structure (UpgradedPoints confirmed).',
+   '2023-07':'Standard shifted to $5K/6 months spend window.',
+   '2024-01':'155K elevated offer — best ever at time. Paired with Brilliant 185K (FrequentMiler Jan 2024).',
+   '2024-04':'Back to 85K standard after elevated window.',
+   '2024-09':'155K relaunched. FrequentMiler: "best ever 155K and 185K back again."',
+   '2024-11':'Pulled back to 125K standard.',
+   '2026-03':'175K all-time best launched Mar 2026 alongside Brilliant 200K (FrequentMiler).',
+   '2026-05':'175K offer ended. Back to 100K standard.',
+ },
+ ...fillMonths([
+   {from:'2022-09',to:'2023-12',val:125},
+   {from:'2024-01',to:'2024-03',val:155},
+   {from:'2024-04',to:'2024-08',val:85},
+   {from:'2024-09',to:'2024-10',val:155},
+   {from:'2024-11',to:'2026-02',val:125},
+   {from:'2026-03',to:'2026-04',val:175},
+   {from:'2026-05',to:'2026-06',val:100},
+ ],[
+   {from:'2022-09',to:'2023-12',val:135},
+   {from:'2024-01',to:'2024-03',val:155},
+   {from:'2024-04',to:'2024-08',val:125},
+   {from:'2024-09',to:'2024-10',val:155},
+   {from:'2024-11',to:'2026-02',val:135},
+   {from:'2026-03',to:'2026-04',val:175},
+   {from:'2026-05',to:'2026-06',val:135},
+ ])
+},
+{id:'amex-marr-biz',issuer:'amex',name:'Marriott Bonvoy Business® American Express® Card',af:125,
+ current:'Up to 5 nights free night award certs (up to 50k per night)',atb:'125k + 2 free nights after $5k / 3 months',
+ rating:'great',conf:'high',
+ link:'https://monkeymiles.boardingarea.com/marriott-credit-card-offers/',
+ tags:['amex','marriott','business','hotel'],
+ approx:false,
+ elevated:[ALL_MONTHS.indexOf('2024-09'),ALL_MONTHS.indexOf('2024-10'),ALL_MONTHS.indexOf('2026-03'),ALL_MONTHS.indexOf('2026-04'),ALL_MONTHS.indexOf('2026-05')],
+ monthlyNotes:{
+   '2024-09':'5 free night offer (up to 50k/night) returned.',
+   '2024-11':'5FN expired. Back to 125k.',
+   '2025-08':'125k offer.',
+   '2025-10':'New 125k with higher spend req (worse terms).',
+   '2026-03':'5FN offer back, expires 05/13/2026.',
+   '2026-06':'5FN expired. Back to standard offer.',
+ },
+ ...fillMonths([
+   {from:'2016-01',to:'2020-12',val:75},
+   {from:'2021-01',to:'2022-12',val:100},
+   {from:'2023-01',to:'2024-08',val:125},
+   {from:'2024-09',to:'2024-10',val:125},
+   {from:'2024-11',to:'2025-07',val:125},
+   {from:'2025-08',to:'2025-09',val:125},
+   {from:'2025-10',to:'2026-02',val:125},
+   {from:'2026-03',to:'2026-05',val:125},
+   {from:'2026-06',to:'2026-06',val:125},
+ ],[
+   {from:'2022-01',to:'2026-06',val:125},
+ ])
+},
+{id:'amex-delta-gold',issuer:'amex',name:'Delta SkyMiles® Gold American Express Card',af:150,
+ current:'Up to 90k (70k after $3k/6mos + 20k after $2k/6mos)',atb:'Up to 90k (70k+20k tiered)',
+ rating:'good',conf:'high',
+ link:'https://monkeymiles.boardingarea.com/american-express-delta-credit-cards/',
+ tags:['amex','delta','gold','airline','personal'],
+ approx:false,
+ elevated:[
+   ALL_MONTHS.indexOf('2021-04'),ALL_MONTHS.indexOf('2021-05'),
+   ALL_MONTHS.indexOf('2022-04'),ALL_MONTHS.indexOf('2022-05'),ALL_MONTHS.indexOf('2022-06'),
+   ALL_MONTHS.indexOf('2023-04'),ALL_MONTHS.indexOf('2023-05'),ALL_MONTHS.indexOf('2023-06'),
+   ALL_MONTHS.indexOf('2025-06'),
+   ALL_MONTHS.indexOf('2025-09'),ALL_MONTHS.indexOf('2025-10'),
+   ALL_MONTHS.indexOf('2026-01'),ALL_MONTHS.indexOf('2026-02'),ALL_MONTHS.indexOf('2026-03'),
+   ALL_MONTHS.indexOf('2026-06'),
+ ],
+ monthlyNotes:{
+   '2021-04':'50K elevated offer appeared. FrequentMiler: "Delta increased offers up to 90K miles or 20K MQMs."',
+   '2021-05':'70K enhanced offer via link. FM noted enhanced offers available.',
+   '2021-08':'Pulled back to 40K standard.',
+   '2022-04':'70K elevated via enhanced link (FrequentMiler Apr 2022). Back to 50K in Jul.',
+   '2023-04':'70K elevated offer returned (FM post Apr 2023 confirmed 70K Gold enhanced).',
+   '2024-03':'70K+20K tiered structure made permanent standard. UpgradedPoints: "6-month window steady since Mar 2024."',
+   '2025-06':'90K elevated window opens.',
+   '2025-09':'90K back, expires 2025.10.29.',
+   '2026-01':'90K back, expires 2026.4.1.',
+   '2026-06':'90K back, expires 2026.7.15. New: second checked bag free. Card art changed.',
+ },
+ ...fillMonths([
+   {from:'2016-01',to:'2020-06',val:30},
+   {from:'2020-07',to:'2021-03',val:40},
+   {from:'2021-04',to:'2021-04',val:50},
+   {from:'2021-05',to:'2021-05',val:70},
+   {from:'2021-06',to:'2022-03',val:40},
+   {from:'2022-04',to:'2022-06',val:70},
+   {from:'2022-07',to:'2023-03',val:50},
+   {from:'2023-04',to:'2023-06',val:70},
+   {from:'2023-07',to:'2024-02',val:50},
+   {from:'2024-03',to:'2025-05',val:90},
+   {from:'2025-06',to:'2025-06',val:90},
+   {from:'2025-07',to:'2025-08',val:50},
+   {from:'2025-09',to:'2025-10',val:90},
+   {from:'2025-11',to:'2025-12',val:50},
+   {from:'2026-01',to:'2026-03',val:90},
+   {from:'2026-04',to:'2026-05',val:50},
+   {from:'2026-06',to:'2026-06',val:90},
+ ],[
+   {from:'2019-01',to:'2021-03',val:60},
+   {from:'2021-04',to:'2021-05',val:85},
+   {from:'2021-06',to:'2022-03',val:60},
+   {from:'2022-04',to:'2022-06',val:85},
+   {from:'2022-07',to:'2024-02',val:80},
+   {from:'2024-03',to:'2026-06',val:90},
+ ])
+},
+{id:'amex-delta-plat',issuer:'amex',name:'Delta SkyMiles® Platinum American Express Card',af:350,
+ current:'Up to 100k (80k after $4k/6mos + 20k after $2k/6mos)',atb:'Up to 100k (80k+20k tiered)',
+ rating:'good',conf:'high',
+ link:'https://monkeymiles.boardingarea.com/american-express-delta-credit-cards/',
+ tags:['amex','delta','platinum','airline','personal'],
+ approx:false,
+ elevated:[
+   ALL_MONTHS.indexOf('2021-04'),ALL_MONTHS.indexOf('2021-05'),
+   ALL_MONTHS.indexOf('2022-04'),ALL_MONTHS.indexOf('2022-05'),ALL_MONTHS.indexOf('2022-06'),
+   ALL_MONTHS.indexOf('2023-04'),ALL_MONTHS.indexOf('2023-05'),ALL_MONTHS.indexOf('2023-06'),
+   ALL_MONTHS.indexOf('2024-04'),ALL_MONTHS.indexOf('2024-07'),ALL_MONTHS.indexOf('2024-08'),
+   ALL_MONTHS.indexOf('2025-03'),ALL_MONTHS.indexOf('2025-04'),
+ ],
+ monthlyNotes:{
+   '2021-04':'85K+MQMs elevated (FM: "90K miles or 20K MQMs" across Delta cards).',
+   '2022-04':'90K enhanced via link (FM: "100K Platinum after $5K" via enhanced link).',
+   '2023-04':'90K elevated. FM confirmed "enhanced offers available targeted."',
+   '2024-03':'80K+20K=100K tiered made standard (UpgradedPoints: "6-month window steady since Mar 2024").',
+   '2024-07':'100K elevated window (UP: "elevated 95K–100K spikes" per Reserve history pattern).',
+   '2025-03':'80K+20K=100K tiered confirmed current standard.',
+   '2025-06':'90K, expires 2025.7.16.',
+   '2025-09':'90K back, expires 2025.10.29.',
+   '2026-01':'100K — best in recent years, expires 2026.4.1.',
+   '2026-06':'100K current, expires 2026.7.15.',
+ },
+ ...fillMonths([
+   {from:'2016-01',to:'2020-06',val:35},
+   {from:'2020-07',to:'2021-03',val:50},
+   {from:'2021-04',to:'2021-04',val:70},
+   {from:'2021-05',to:'2021-05',val:85},
+   {from:'2021-06',to:'2022-03',val:50},
+   {from:'2022-04',to:'2022-06',val:90},
+   {from:'2022-07',to:'2023-03',val:65},
+   {from:'2023-04',to:'2023-06',val:90},
+   {from:'2023-07',to:'2024-02',val:65},
+   {from:'2024-03',to:'2025-05',val:100},
+   {from:'2025-06',to:'2025-06',val:90},
+   {from:'2025-07',to:'2025-08',val:60},
+   {from:'2025-09',to:'2025-10',val:90},
+   {from:'2025-11',to:'2025-12',val:60},
+   {from:'2026-01',to:'2026-03',val:100},
+   {from:'2026-04',to:'2026-05',val:60},
+   {from:'2026-06',to:'2026-06',val:100},
+ ],[
+   {from:'2019-01',to:'2021-03',val:75},
+   {from:'2021-04',to:'2021-05',val:90},
+   {from:'2021-06',to:'2022-03',val:75},
+   {from:'2022-04',to:'2022-06',val:100},
+   {from:'2022-07',to:'2024-02',val:90},
+   {from:'2024-03',to:'2026-06',val:100},
+ ])
+},
+{id:'amex-delta-res',issuer:'amex',name:'Delta SkyMiles® Reserve American Express Card',af:650,
+ current:'Up to 125k (100k after $6k/6mos + 25k after $3k/6mos)',atb:'Up to 125k (100k+25k tiered)',
+ rating:'great',conf:'high',
+ link:'https://monkeymiles.boardingarea.com/american-express-delta-credit-cards/',
+ tags:['amex','delta','reserve','airline','personal'],
+ approx:false,
+ elevated:[
+   ALL_MONTHS.indexOf('2021-04'),ALL_MONTHS.indexOf('2021-05'),
+   ALL_MONTHS.indexOf('2021-08'),ALL_MONTHS.indexOf('2021-09'),ALL_MONTHS.indexOf('2021-10'),
+   ALL_MONTHS.indexOf('2022-06'),ALL_MONTHS.indexOf('2022-07'),ALL_MONTHS.indexOf('2022-08'),
+   ALL_MONTHS.indexOf('2023-03'),ALL_MONTHS.indexOf('2023-04'),
+   ALL_MONTHS.indexOf('2024-04'),ALL_MONTHS.indexOf('2024-05'),
+   ALL_MONTHS.indexOf('2024-07'),ALL_MONTHS.indexOf('2024-08'),
+   ALL_MONTHS.indexOf('2025-03'),ALL_MONTHS.indexOf('2025-04'),
+ ],
+ monthlyNotes:{
+   '2021-04':'80K+20K MQMs elevated offer. FrequentMiler: "through April 28, 2021."',
+   '2021-05':'Pulled back to 50K after MQM offer expired.',
+   '2021-08':'90K miles + MQMs returned (FM: "big offers back — as many as 90K miles or 20K MQMs").',
+   '2021-12':'FM Dec 2021: "90K SkyMiles or up to 20K MQMs" confirmed through year end.',
+   '2022-06':'Mid-2022 shift to mileage-only structure. 95K–100K offers (UpgradedPoints history).',
+   '2023-03':'100K elevated runs. UP: "95K–100K becoming more common mid-2022 and 2023."',
+   '2024-01':'Dipped to 60K–70K base (UP Reserve history: "alternated between 60K–70K and elevated").',
+   '2024-04':'95K elevated window opened.',
+   '2024-07':'125K offer appeared. FM "limited-time up to 110K biz" implies personal at 125K same window.',
+   '2024-10':'Back to 70K base per UP Reserve history.',
+   '2025-03':'100K+25K=125K tiered structure introduced. Now standard.',
+   '2025-06':'100K, expires 2025.7.16.',
+   '2025-09':'125K back, expires 2025.10.29.',
+   '2026-01':'125K back, expires 2026.4.1.',
+   '2026-06':'125K back, expires 2026.7.15.',
+ },
+ ...fillMonths([
+   {from:'2016-01',to:'2020-06',val:50},
+   {from:'2020-07',to:'2021-03',val:60},
+   {from:'2021-04',to:'2021-04',val:80},
+   {from:'2021-05',to:'2021-07',val:50},
+   {from:'2021-08',to:'2021-12',val:90},
+   {from:'2022-01',to:'2022-05',val:70},
+   {from:'2022-06',to:'2022-08',val:100},
+   {from:'2022-09',to:'2023-02',val:95},
+   {from:'2023-03',to:'2023-04',val:100},
+   {from:'2023-05',to:'2023-12',val:95},
+   {from:'2024-01',to:'2024-03',val:60},
+   {from:'2024-04',to:'2024-05',val:95},
+   {from:'2024-06',to:'2024-06',val:70},
+   {from:'2024-07',to:'2024-08',val:125},
+   {from:'2024-09',to:'2024-09',val:70},
+   {from:'2024-10',to:'2025-02',val:70},
+   {from:'2025-03',to:'2025-05',val:125},
+   {from:'2025-06',to:'2025-06',val:100},
+   {from:'2025-07',to:'2025-08',val:70},
+   {from:'2025-09',to:'2025-10',val:125},
+   {from:'2025-11',to:'2025-12',val:70},
+   {from:'2026-01',to:'2026-03',val:125},
+   {from:'2026-04',to:'2026-05',val:70},
+   {from:'2026-06',to:'2026-06',val:125},
+ ],[
+   {from:'2019-01',to:'2021-03',val:80},
+   {from:'2021-04',to:'2021-04',val:90},
+   {from:'2021-05',to:'2021-07',val:80},
+   {from:'2021-08',to:'2021-12',val:90},
+   {from:'2022-01',to:'2022-05',val:95},
+   {from:'2022-06',to:'2023-04',val:100},
+   {from:'2023-05',to:'2024-03',val:100},
+   {from:'2024-04',to:'2026-06',val:125},
+ ])
+},
+{id:'amex-delta-gold-biz',issuer:'amex',name:'Delta SkyMiles® Gold American Express Business Card',af:150,
+ current:'90k after $6k / 6 months',atb:'90k after $4k / 3 months',
+ rating:'good',conf:'med',
+ link:'https://monkeymiles.boardingarea.com/american-express-delta-credit-cards/',
+ tags:['amex','delta','gold','business','airline'],
+ approx:true,
+ elevated:[ALL_MONTHS.indexOf('2024-09')],
+ monthlyNotes:{},
+ ...fillMonths([
+   {from:'2016-01',to:'2020-06',val:35},
+   {from:'2020-07',to:'2022-06',val:70},
+   {from:'2022-07',to:'2025-05',val:90},
+   {from:'2025-06',to:'2025-06',val:90},
+   {from:'2025-07',to:'2025-08',val:60},
+   {from:'2025-09',to:'2025-10',val:90},
+   {from:'2025-11',to:'2025-12',val:60},
+   {from:'2026-01',to:'2026-03',val:90},
+   {from:'2026-04',to:'2026-05',val:60},
+   {from:'2026-06',to:'2026-06',val:90},
+ ],[
+   {from:'2019-01',to:'2022-06',val:70},
+   {from:'2022-07',to:'2026-06',val:90},
+ ])
+},
+{id:'amex-delta-plat-biz',issuer:'amex',name:'Delta SkyMiles® Platinum American Express Business Card',af:350,
+ current:'100k after $8k spend / 6 months',atb:'100k after $4k / 3 months',
+ rating:'good',conf:'med',
+ link:'https://monkeymiles.boardingarea.com/american-express-delta-credit-cards/',
+ tags:['amex','delta','platinum','business','airline'],
+ approx:true,
+ elevated:[ALL_MONTHS.indexOf('2024-09')],
+ monthlyNotes:{},
+ ...fillMonths([
+   {from:'2016-01',to:'2020-06',val:35},
+   {from:'2020-07',to:'2022-06',val:70},
+   {from:'2022-07',to:'2025-05',val:100},
+   {from:'2025-06',to:'2025-06',val:100},
+   {from:'2025-07',to:'2025-08',val:70},
+   {from:'2025-09',to:'2025-10',val:100},
+   {from:'2025-11',to:'2025-12',val:70},
+   {from:'2026-01',to:'2026-03',val:100},
+   {from:'2026-04',to:'2026-05',val:70},
+   {from:'2026-06',to:'2026-06',val:100},
+ ],[
+   {from:'2019-01',to:'2022-06',val:90},
+   {from:'2022-07',to:'2026-06',val:100},
+ ])
+},
+{id:'amex-delta-res-biz',issuer:'amex',name:'Delta SkyMiles® Reserve American Express Business Card',af:650,
+ current:'125k after $15k / 6 months',atb:'125k after $6k / 3 months',
+ rating:'great',conf:'med',
+ link:'https://monkeymiles.boardingarea.com/american-express-delta-credit-cards/',
+ tags:['amex','delta','reserve','business','airline'],
+ approx:true,
+ elevated:[ALL_MONTHS.indexOf('2024-09')],
+ monthlyNotes:{},
+ ...fillMonths([
+   {from:'2016-01',to:'2020-06',val:50},
+   {from:'2020-07',to:'2022-06',val:80},
+   {from:'2022-07',to:'2025-05',val:125},
+   {from:'2025-06',to:'2025-06',val:110},
+   {from:'2025-07',to:'2025-08',val:80},
+   {from:'2025-09',to:'2025-10',val:125},
+   {from:'2025-11',to:'2025-12',val:80},
+   {from:'2026-01',to:'2026-03',val:125},
+   {from:'2026-04',to:'2026-06',val:80},
+ ],[
+   {from:'2019-01',to:'2022-06',val:100},
+   {from:'2022-07',to:'2026-06',val:125},
+ ])
+},
+// ═══════════════════════════════════════════════════════════════
+// BANK OF AMERICA
+// ═══════════════════════════════════════════════════════════════
+{id:'boa-alaska-summit',issuer:'boa',name:'Alaska Airlines Visa® Signature+ Credit Card (Atmos Summit)',af:395,
+ current:'100k after $6k / 90 days + 25k Global Companion Award',atb:'100k after $6k / 90 days + 25k Global Companion Award',
+ rating:'great',conf:'high',
+ link:'https://monkeymiles.boardingarea.com/alaska-airlines-credit-cards/',
+ tags:['bank of america','alaska','atmos','summit','airline','personal'],
+ approx:false,
+ elevated:[ALL_MONTHS.indexOf('2024-06'),ALL_MONTHS.indexOf('2024-07'),ALL_MONTHS.indexOf('2024-08'),ALL_MONTHS.indexOf('2024-09'),ALL_MONTHS.indexOf('2024-10'),ALL_MONTHS.indexOf('2026-04'),ALL_MONTHS.indexOf('2026-05'),ALL_MONTHS.indexOf('2026-06')],
+ monthlyNotes:{
+   '2024-06':'Atmos Summit launched. 100K+25K Global Companion Award offer at launch.',
+   '2025-11':'100K expired → 80K standard.',
+   '2026-04':'100K offer returned (current).',
+ },
+ ...fillMonths([
+   {from:'2024-06',to:'2025-10',val:100},
+   {from:'2025-11',to:'2026-03',val:80},
+   {from:'2026-04',to:'2026-06',val:100},
+ ])
+},
+{id:'boa-alaska-ascent',issuer:'boa',name:'Alaska Airlines Visa® Signature Credit Card (Atmos Ascent)',af:95,
+ current:'85k after $4.5k / 120 days + companion fare',atb:'85k + companion fare (best ever)',
+ rating:'great',conf:'high',
+ link:'https://monkeymiles.boardingarea.com/alaska-airlines-credit-cards/',
+ tags:['bank of america','alaska','atmos','ascent','airline','personal'],
+ approx:false,
+ elevated:[ALL_MONTHS.indexOf('2025-08'),ALL_MONTHS.indexOf('2025-09'),ALL_MONTHS.indexOf('2026-02'),ALL_MONTHS.indexOf('2026-04'),ALL_MONTHS.indexOf('2026-05'),ALL_MONTHS.indexOf('2026-06')],
+ monthlyNotes:{
+   '2016-01':'Old Alaska Airlines Visa — standard 50K offer era.',
+   '2024-06':'Old card product-changed to Atmos Ascent. 80K standard launch offer.',
+   '2025-08':'85K inflight offer link obtained. Best ever. HT: DoC.',
+   '2026-01':'85K expired → 60K standard.',
+   '2026-02':'85K back again.',
+   '2026-03':'expired → 60K.',
+   '2026-04':'85K back (current).',
+ },
+ ...fillMonths([
+   {from:'2016-01',to:'2024-05',val:50},
+   {from:'2024-06',to:'2025-07',val:80},
+   {from:'2025-08',to:'2025-09',val:85},
+   {from:'2025-10',to:'2025-12',val:80},
+   {from:'2026-01',to:'2026-01',val:60},
+   {from:'2026-02',to:'2026-02',val:85},
+   {from:'2026-03',to:'2026-03',val:60},
+   {from:'2026-04',to:'2026-06',val:85},
+ ])
+},
+{id:'boa-alaska-biz',issuer:'boa',name:'Alaska Airlines Visa® Business Card (Atmos)',af:95,
+ current:'75k after $5.5k / 90 days + companion fare',atb:'85k + companion fare (best ever, Aug 2025)',
+ rating:'great',conf:'high',
+ link:'https://monkeymiles.boardingarea.com/alaska-airlines-credit-cards/',
+ tags:['bank of america','alaska','atmos','business','airline'],
+ approx:false,
+ elevated:[ALL_MONTHS.indexOf('2025-08'),ALL_MONTHS.indexOf('2025-09'),ALL_MONTHS.indexOf('2026-02'),ALL_MONTHS.indexOf('2026-03')],
+ monthlyNotes:{
+   '2016-01':'Old Alaska Airlines Business Visa — standard 60K offer era.',
+   '2024-06':'Old card product-changed to Atmos Business. 80K standard launch offer.',
+   '2025-08':'85K inflight offer link obtained. Any 7-digit promo code works. HT: DoC.',
+   '2025-10':'85K expired → 75K standard.',
+   '2026-02':'85K returned.',
+   '2026-04':'85K expired → 75K (current).',
+ },
+ ...fillMonths([
+   {from:'2016-01',to:'2024-05',val:60},
+   {from:'2024-06',to:'2025-07',val:80},
+   {from:'2025-08',to:'2025-09',val:85},
+   {from:'2025-10',to:'2026-01',val:75},
+   {from:'2026-02',to:'2026-03',val:85},
+   {from:'2026-04',to:'2026-06',val:75},
+ ])
+},
+{id:'boa-airfrance',issuer:'boa',name:'Air France KLM World Elite Mastercard®',af:89,
+ current:'70k + 100XP after $3k / 3 months',atb:'70k + $100 via dummy booking (2023–2024)',
+ rating:'good',conf:'high',
+ link:'https://wwws.airfrance.us/information/flyingblue/carte-bancaire-partenaire',
+ tags:['bank of america','air france','klm','flying blue','airline','personal'],
+ approx:false,
+ elevated:[ALL_MONTHS.indexOf('2023-04'),ALL_MONTHS.indexOf('2023-05'),ALL_MONTHS.indexOf('2024-03'),ALL_MONTHS.indexOf('2024-04'),ALL_MONTHS.indexOf('2024-09'),ALL_MONTHS.indexOf('2025-03'),ALL_MONTHS.indexOf('2025-04'),ALL_MONTHS.indexOf('2026-01')],
+ monthlyNotes:{
+   '2021-01':'70K became new standard (up from 50K).',
+   '2023-04':'70K+$100 offer (via dummy booking). HT: DoC.',
+   '2024-03':'70K+$100 returned. HT: DoC.',
+   '2024-09':'70K standard; 60K+$150 available via dummy booking. HT: FM.',
+   '2025-01':'expired → lower offer.',
+   '2025-03':'70K back. HT: DDG.',
+   '2025-12':'expired.',
+   '2026-01':'70K + card improvements: 3x dining added, XP earning upgraded, Mastercard→Visa Signature.',
+ },
+ ...fillMonths([
+   {from:'2016-01',to:'2020-12',val:50},
+   {from:'2021-01',to:'2022-12',val:60},
+   {from:'2023-01',to:'2023-03',val:60},
+   {from:'2023-04',to:'2023-06',val:70},
+   {from:'2023-07',to:'2024-02',val:60},
+   {from:'2024-03',to:'2024-04',val:70},
+   {from:'2024-05',to:'2024-08',val:60},
+   {from:'2024-09',to:'2024-12',val:70},
+   {from:'2025-01',to:'2025-02',val:50},
+   {from:'2025-03',to:'2025-04',val:70},
+   {from:'2025-05',to:'2025-11',val:50},
+   {from:'2025-12',to:'2025-12',val:50},
+   {from:'2026-01',to:'2026-06',val:70},
+ ])
+},
+{id:'boa-prem',issuer:'boa',name:'Bank of America® Premium Rewards® Credit Card',af:95,
+ current:'60k after $4k / 3 months (worth $600)',atb:'60k after $4k / 3 months (worth $600)',
+ rating:'good',conf:'low',
+ link:'https://www.bankofamerica.com/credit-cards/products/premium-rewards-credit-card/',
+ tags:['bank of america','premium rewards','personal','cash'],
+ approx:true,
+ elevated:[],
+ monthlyNotes:{},
+ isCash:true,
+ ...fillMonths([
+   {from:'2018-01',to:'2022-12',val:500},
+   {from:'2023-01',to:'2026-06',val:600},
+ ])
+},
+// ═══════════════════════════════════════════════════════════════
+// BARCLAY
+// ═══════════════════════════════════════════════════════════════
+{id:'barclay-lufthansa',issuer:'barclay',name:'Miles & More® World Elite Mastercard®',af:89,
+ current:'50k after $3k / 3 months',atb:'100k after $3k / 3 months (best ever)',
+ rating:'good',conf:'med',
+ link:'https://cards.barclaycardus.com/banking/cards/lufthansa-miles-more-world-elite-mastercard/',
+ tags:['barclay','lufthansa','miles and more','airline','personal'],
+ approx:true,
+ elevated:[ALL_MONTHS.indexOf('2022-06'),ALL_MONTHS.indexOf('2023-06')],
+ monthlyNotes:{},
+ ...fillMonths([
+   {from:'2016-01',to:'2022-06',val:50},
+   {from:'2022-07',to:'2023-08',val:100},
+   {from:'2023-09',to:'2026-06',val:50},
+ ])
+},
+{id:'barclay-jetblue-plus',issuer:'barclay',name:'JetBlue Plus Card',af:99,
+ current:'75k after $1k / 3 months (code 00000 or 06410)',atb:'100k (50k after $1k + 50k after $6k total/12mos) — best ever',
+ rating:'great',conf:'high',
+ link:'http://getmyjetbluecard.com/',
+ tags:['barclay','jetblue','airline','personal'],
+ approx:false,
+ elevated:[ALL_MONTHS.indexOf('2022-06'),ALL_MONTHS.indexOf('2022-07'),ALL_MONTHS.indexOf('2023-09'),ALL_MONTHS.indexOf('2023-10'),ALL_MONTHS.indexOf('2024-06'),ALL_MONTHS.indexOf('2024-07'),ALL_MONTHS.indexOf('2025-03'),ALL_MONTHS.indexOf('2025-04')],
+ monthlyNotes:{
+   '2016-01':'Standard 40K era.',
+   '2020-07':'Elevated to 60K.',
+   '2022-06':'70K elevated offer windows started appearing.',
+   '2023-09':'75K standard offer with code 00000 or 06410.',
+   '2024-06':'75K standard. 100K tiered best ever seen (50K+50K) in select windows.',
+   '2025-03':'100K tiered offer returned (50K after $1K + 50K after $6K total in 12 months).',
+ },
+ ...fillMonths([
+   {from:'2016-01',to:'2020-06',val:40},
+   {from:'2020-07',to:'2022-05',val:60},
+   {from:'2022-06',to:'2022-07',val:70},
+   {from:'2022-08',to:'2023-08',val:60},
+   {from:'2023-09',to:'2024-02',val:75},
+   {from:'2024-03',to:'2024-05',val:70},
+   {from:'2024-06',to:'2024-07',val:75},
+   {from:'2024-08',to:'2025-02',val:75},
+   {from:'2025-03',to:'2025-04',val:100},
+   {from:'2025-05',to:'2026-06',val:75},
+ ],[
+   {from:'2022-06',to:'2025-02',val:100},
+   {from:'2025-03',to:'2025-04',val:100},
+   {from:'2025-05',to:'2026-06',val:100},
+ ])
+},
+{id:'barclay-jetblue-prem',issuer:'barclay',name:'JetBlue Premier Card',af:99,
+ current:'100k after $5k / 90 days',atb:'100k after $5k / 90 days',
+ rating:'great',conf:'med',
+ link:'https://cards.barclaycardus.com/banking/cards/jetblue-premier-card/',
+ tags:['barclay','jetblue','premier','airline','personal'],
+ approx:false,
+ elevated:[ALL_MONTHS.indexOf('2024-06'),ALL_MONTHS.indexOf('2024-07')],
+ monthlyNotes:{
+   '2024-06':'JetBlue Premier launched mid-2024 as new premium tier card. 100K standard offer at launch.',
+   '2025-01':'100K standard offer. $99 AF. Earns 3x on JetBlue, 2x on dining/grocery, 1x elsewhere.',
+ },
+ ...fillMonths([{from:'2024-06',to:'2026-06',val:100}])
+},
+{id:'barclay-jetblue-biz',issuer:'barclay',name:'JetBlue Business Card',af:99,
+ current:'70k after $1k / 3 months',atb:'100k tiered best ever (same structure as Plus card)',
+ rating:'good',conf:'high',
+ link:'https://cards.barclaycardus.com/banking/cards/jetblue-plus-card/',
+ tags:['barclay','jetblue','business','airline'],
+ approx:false,
+ elevated:[ALL_MONTHS.indexOf('2022-06'),ALL_MONTHS.indexOf('2023-09'),ALL_MONTHS.indexOf('2025-03'),ALL_MONTHS.indexOf('2025-04')],
+ monthlyNotes:{
+   '2016-01':'Standard 50K era.',
+   '2022-01':'Raised to 70K standard.',
+   '2022-06':'70K elevated window with targeted 100K tiered seen.',
+   '2023-09':'70K standard. 100K tiered (50K+50K) available in elevated windows.',
+   '2025-03':'100K tiered offer returned alongside Plus card elevated window.',
+ },
+ ...fillMonths([
+   {from:'2016-01',to:'2021-12',val:50},
+   {from:'2022-01',to:'2023-08',val:65},
+   {from:'2023-09',to:'2025-02',val:70},
+   {from:'2025-03',to:'2025-04',val:100},
+   {from:'2025-05',to:'2026-06',val:70},
+ ],[
+   {from:'2022-01',to:'2025-02',val:100},
+   {from:'2025-03',to:'2025-04',val:100},
+   {from:'2025-05',to:'2026-06',val:100},
+ ])
+},
+{id:'barclay-wyndham-plus',issuer:'barclay',name:'Wyndham Rewards Earner® Plus Card',af:95,
+ current:'100k after $1k / 90 days (Jun 2026 refresh)',atb:'100k — best ever (Jun 2026)',
+ rating:'great',conf:'high',
+ link:'https://www.wyndhamrewardscreditcard.com/?gclsrc=aw.ds#earnerplus',
+ tags:['barclay','wyndham','hotel','personal'],
+ approx:false,
+ elevated:[ALL_MONTHS.indexOf('2022-09'),ALL_MONTHS.indexOf('2023-09'),ALL_MONTHS.indexOf('2026-06')],
+ monthlyNotes:{
+   '2022-01':'Standard 75K offer.',
+   '2026-03':'New 75K structure (45K/$1k + 30K after Wyndham stay).',
+   '2026-06':'Major refresh. AF $75→$95. 100K best ever. Diamond status 1st yr. Annual pts 7.5K→15K. New free night award.',
+ },
+ ...fillMonths([
+   {from:'2016-01',to:'2021-12',val:45},
+   {from:'2022-01',to:'2026-05',val:75},
+   {from:'2026-06',to:'2026-06',val:100},
+ ],[
+   {from:'2022-01',to:'2026-06',val:90},
+ ])
+},
+{id:'barclay-wyndham-biz',issuer:'barclay',name:'Wyndham Rewards Earner® Business Card',af:149,
+ current:'100k after $3k / 90 days (Jun 2026 refresh)',atb:'100k — best ever (Jun 2026)',
+ rating:'great',conf:'high',
+ link:'https://www.wyndhamrewardscreditcard.com/earner-business-card/',
+ tags:['barclay','wyndham','business','hotel'],
+ approx:false,
+ elevated:[ALL_MONTHS.indexOf('2024-09'),ALL_MONTHS.indexOf('2025-03'),ALL_MONTHS.indexOf('2026-06')],
+ monthlyNotes:{
+   '2024-09':'80K (high spend $15k/12mos).',
+   '2025-03':'75K ($12k/12mos spending req).',
+   '2026-06':'Major refresh. AF $95→$149. 100K best ever. 20% redemption discount. $65 wholesale club credit. Diamond membership.',
+ },
+ ...fillMonths([
+   {from:'2016-01',to:'2021-12',val:45},
+   {from:'2022-01',to:'2024-08',val:45},
+   {from:'2024-09',to:'2024-10',val:80},
+   {from:'2024-11',to:'2025-02',val:45},
+   {from:'2025-03',to:'2025-06',val:75},
+   {from:'2025-07',to:'2026-05',val:45},
+   {from:'2026-06',to:'2026-06',val:100},
+ ],[
+   {from:'2022-01',to:'2026-06',val:90},
+ ])
+},
+{id:'barclay-wyndham',issuer:'barclay',name:'Wyndham Rewards Earner® Card',af:0,
+ current:'75k after $1k / 90 days (Jun 2026 refresh)',atb:'75k — best ever (Jun 2026)',
+ rating:'good',conf:'high',
+ link:'https://www.wyndhamrewardscreditcard.com/',
+ tags:['barclay','wyndham','hotel','personal','no fee'],
+ approx:false,
+ elevated:[ALL_MONTHS.indexOf('2026-03'),ALL_MONTHS.indexOf('2026-06')],
+ monthlyNotes:{
+   '2026-03':'60K new structure (30K/$1k + 30K after Wyndham stay).',
+   '2026-06':'75K best ever (30K/$1k + 45K after Wyndham stay).',
+ },
+ ...fillMonths([
+   {from:'2016-01',to:'2025-12',val:45},
+   {from:'2026-01',to:'2026-02',val:45},
+   {from:'2026-03',to:'2026-05',val:60},
+   {from:'2026-06',to:'2026-06',val:75},
+ ],[{from:'2020-01',to:'2026-06',val:60}])
+},
+{id:'barclay-wyndham-premier',issuer:'barclay',name:'Wyndham Rewards Earner® Premier Card',af:395,
+ current:'120k after $6k / 120 days',atb:'120k — best ever (launch offer, Jun 2026)',
+ rating:'great',conf:'low',
+ link:'https://www.wyndhamrewardscreditcard.com/?gclsrc=aw.ds#earnerpremier',
+ tags:['barclay','wyndham','hotel','personal'],
+ approx:false,
+ elevated:[ALL_MONTHS.indexOf('2026-06')],
+ monthlyNotes:{
+   '2026-06':'Brand new card launched June 2026. $395 AF, premium coupon-book benefits. 120K offer: 90K after $6K/120 days + 30K after $750 at Wyndham/180 days.',
+ },
+ ...fillMonths([
+   {from:'2026-06',to:'2026-06',val:120},
+ ])
+},
+// ═══════════════════════════════════════════════════════════════
+// BILT
+// ═══════════════════════════════════════════════════════════════
+{id:'bilt-blue',issuer:'bilt',name:'Bilt Blue Card',af:0,
+ current:'$100 Bilt cash upon account approval',atb:'$100 Bilt cash upon approval',
+ rating:'below',conf:'low',
+ link:'https://monkeymiles.boardingarea.com/bilt-cards/',
+ tags:['bilt','blue','no fee','personal','cash'],
+ approx:true,
+ elevated:[],
+ monthlyNotes:{},
+ isCash:true,
+ ...fillMonths([{from:'2024-01',to:'2026-06',val:100}])
+},
+{id:'bilt-obsidian',issuer:'bilt',name:'Bilt Obsidian Card',af:95,
+ current:'$200 Bilt cash upon account approval',atb:'$200 Bilt cash upon approval',
+ rating:'below',conf:'low',
+ link:'https://monkeymiles.boardingarea.com/bilt-cards/',
+ tags:['bilt','obsidian','personal','cash'],
+ approx:true,
+ elevated:[],
+ monthlyNotes:{},
+ isCash:true,
+ ...fillMonths([{from:'2024-01',to:'2026-06',val:200}])
+},
+{id:'bilt-palladium',issuer:'bilt',name:'Bilt Palladium Card',af:495,
+ current:'$300 Bilt Cash + 50k after $4k / 3 months',atb:'$300 Bilt Cash + 50k after $4k / 3 months',
+ rating:'great',conf:'low',
+ link:'https://monkeymiles.boardingarea.com/bilt-cards/',
+ tags:['bilt','palladium','personal'],
+ approx:true,
+ elevated:[],
+ monthlyNotes:{},
+ ...fillMonths([{from:'2025-01',to:'2026-06',val:50}])
+},
+// ═══════════════════════════════════════════════════════════════
+// CAPITAL ONE
+// ═══════════════════════════════════════════════════════════════
+{id:'co-venture-x',issuer:'co',name:'Capital One Venture X Rewards Credit Card',af:395,
+ current:'75k after $4k spend / 6 months',atb:'100k after $10k / 6 months (launch)',
+ rating:'great',conf:'high',
+ link:'https://monkeymiles.boardingarea.com/capital-one-venture-x/',
+ tags:['capital one','venture x','personal','travel'],
+ approx:false,
+ elevated:[
+   ALL_MONTHS.indexOf('2021-11'),ALL_MONTHS.indexOf('2021-12'),
+   ALL_MONTHS.indexOf('2023-09'),ALL_MONTHS.indexOf('2023-10'),
+   ALL_MONTHS.indexOf('2025-08'),ALL_MONTHS.indexOf('2025-09'),
+ ],
+ monthlyNotes:{
+   '2021-11':'Launch: 100K after $10K/6 months — best ever.',
+   '2022-02':'Standard dropped to 75K after launch hype.',
+   '2023-09':'90K elevated offer ran briefly.',
+   '2025-01':'100K offer ran through much of 2025.',
+   '2026-01':'100K expired → 75K.',
+   '2026-02':'Lounge benefit weakened — AU lounge access removed, guest fees added.',
+ },
+ ...fillMonths([
+   {from:'2021-11',to:'2022-01',val:100},
+   {from:'2022-02',to:'2023-08',val:75},
+   {from:'2023-09',to:'2023-10',val:90},
+   {from:'2023-11',to:'2024-12',val:75},
+   {from:'2025-01',to:'2025-12',val:100},
+   {from:'2026-01',to:'2026-01',val:100},
+   {from:'2026-02',to:'2026-06',val:75},
+ ],[
+   {from:'2022-01',to:'2026-06',val:90},
+ ])
+},
+{id:'co-venture',issuer:'co',name:'Capital One Venture Rewards Credit Card',af:95,
+ current:'75k after $4k spend / 3 months',atb:'75k + $250 Capital One Travel credit (Jan–Apr 2026, Oct–Dec 2025)',
+ rating:'great',conf:'high',
+ link:'https://monkeymiles.boardingarea.com/capital-one-venture/',
+ tags:['capital one','venture','personal','travel'],
+ approx:false,
+ elevated:[
+   ALL_MONTHS.indexOf('2021-01'),ALL_MONTHS.indexOf('2021-02'),
+   ALL_MONTHS.indexOf('2023-03'),ALL_MONTHS.indexOf('2023-04'),
+   ALL_MONTHS.indexOf('2025-10'),ALL_MONTHS.indexOf('2025-11'),ALL_MONTHS.indexOf('2025-12'),
+   ALL_MONTHS.indexOf('2026-01'),ALL_MONTHS.indexOf('2026-02'),ALL_MONTHS.indexOf('2026-03'),ALL_MONTHS.indexOf('2026-04'),
+ ],
+ monthlyNotes:{
+   '2021-01':'100K offer briefly available.',
+   '2025-10':'75K + $250 Capital One Travel credit returned (DoC Oct 1, 2025; MonkeyMiles referral page confirmed elevated offer). Credit valid 1 year, hotels & vacation rentals only.',
+   '2026-01':'75K + $250 re-launched Jan 20, 2026 (MonkeyMiles Jan 20 comment: "Updated 2026 Cap1 Venture Referral Link"; UpgradedPoints confirmed $1,600 est. value).',
+   '2026-04':'Offer ended April 13, 2026 (MilesTalk/FrequentMiler/MonkeyMiles "Ending soon!" confirmed). Back to standard 75K.',
+   '2026-05':'Standard 75K after $4K / 3 months. No $250 credit. (MonkeyMiles Venture review page)',
+ },
+ ...fillMonths([
+   {from:'2016-01',to:'2020-06',val:50},
+   {from:'2020-07',to:'2022-06',val:60},
+   {from:'2022-07',to:'2024-12',val:75},
+   {from:'2025-01',to:'2025-02',val:75},// +$250 credit window ~Oct 2024–Feb 2025 (DoC referral Oct 2025)
+   {from:'2025-03',to:'2025-09',val:75},
+   {from:'2025-10',to:'2025-12',val:75},// +$250 credit window returned (DoC: referral Oct 1 2025)
+   {from:'2026-01',to:'2026-04',val:75},// +$250 credit window Jan 20–Apr 13, 2026 (MilesTalk/FM confirmed)
+   {from:'2026-05',to:'2026-06',val:75},
+ ],[
+   {from:'2021-01',to:'2021-02',val:100},
+   {from:'2022-07',to:'2026-06',val:100},
+ ])
+},
+{id:'co-savor',issuer:'co',name:'Capital One Savor Cash Rewards Credit Card',af:0,
+ current:'$200 cashback after $500 / 3 months',atb:'$200 cashback after $500 / 3 months',
+ rating:'below',conf:'low',
+ link:'https://monkeymiles.boardingarea.com/underrated-two-card-combo-get-paid-keep-wallet/',
+ tags:['capital one','savor','cash','personal','no fee'],
+ approx:true,
+ elevated:[],
+ monthlyNotes:{},
+ isCash:true,
+ ...fillMonths([{from:'2020-01',to:'2026-06',val:200}])
+},
+{id:'co-venture-x-biz',issuer:'co',name:'Capital One Venture X Business',af:395,
+ current:'150k after $20k spend / 3 months',atb:'400k limited time (Nov 2025)',
+ rating:'great',conf:'med',
+ link:'https://monkeymiles.boardingarea.com/capital-one-venture-x-business/',
+ tags:['capital one','venture x','business'],
+ approx:true,
+ elevated:[ALL_MONTHS.indexOf('2025-11'),ALL_MONTHS.indexOf('2025-12')],
+ monthlyNotes:{'2022-01':'150K launch.','2025-11':'400K record-high limited time offer.'},
+ ...fillMonths([
+   {from:'2022-01',to:'2025-10',val:150},
+   {from:'2025-11',to:'2025-12',val:400},
+   {from:'2026-01',to:'2026-06',val:150},
+ ],[
+   {from:'2024-01',to:'2025-10',val:250},
+   {from:'2025-11',to:'2025-12',val:400},
+   {from:'2026-01',to:'2026-06',val:250},
+ ])
+},
+{id:'co-venture-biz',issuer:'co',name:'Capital One Venture Business',af:95,
+ current:'Up to 150k (75k after $7.5k/3 mos + 75k after $30k/6 mos)',atb:'150k (75k/$7.5k + 75k/$30k)',
+ rating:'great',conf:'med',
+ link:'https://monkeymiles.boardingarea.com/capital-one-venture-business/',
+ tags:['capital one','venture','business'],
+ approx:true,
+ elevated:[ALL_MONTHS.indexOf('2024-03'),ALL_MONTHS.indexOf('2025-03')],
+ monthlyNotes:{},
+ ...fillMonths([
+   {from:'2022-01',to:'2023-06',val:75},
+   {from:'2023-07',to:'2026-06',val:150},// tiered total
+ ])
+},
+{id:'co-spark-cash',issuer:'co',name:'Capital One Spark Cash Plus',af:150,
+ current:'$2000 cash after $30k spend / 3 months',atb:'$3k after $50k in 6 months',
+ rating:'great',conf:'med',
+ link:'https://monkeymiles.boardingarea.com/capital-one-spark-cash-plus/',
+ tags:['capital one','spark','cash','business'],
+ approx:true,
+ elevated:[ALL_MONTHS.indexOf('2023-03'),ALL_MONTHS.indexOf('2024-03')],
+ monthlyNotes:{},
+ isCash:true,
+ ...fillMonths([
+   {from:'2020-01',to:'2022-12',val:1000},
+   {from:'2023-01',to:'2026-06',val:2000},
+ ],[
+   {from:'2023-01',to:'2026-06',val:3000},
+ ])
+},
+// ═══════════════════════════════════════════════════════════════
+// CHASE
+// ═══════════════════════════════════════════════════════════════
+{id:'chase-csp',issuer:'chase',name:'Chase Sapphire Preferred® Card',af:95,
+ current:'100k after $5k / 3 months',atb:'100k after $4k / 3 months (Jun 2021)',
+ rating:'great',conf:'high',
+ link:'https://monkeymiles.boardingarea.com/chase-sapphire-preferred/',
+ tags:['chase','sapphire','preferred','ultimate rewards','personal'],
+ approx:false,
+ elevated:[
+   ALL_MONTHS.indexOf('2021-06'),ALL_MONTHS.indexOf('2021-07'),ALL_MONTHS.indexOf('2021-08'),ALL_MONTHS.indexOf('2021-09'),
+   ALL_MONTHS.indexOf('2023-03'),ALL_MONTHS.indexOf('2023-04'),ALL_MONTHS.indexOf('2023-05'),
+   ALL_MONTHS.indexOf('2025-04'),ALL_MONTHS.indexOf('2025-05'),
+   ALL_MONTHS.indexOf('2026-06'),
+ ],
+ monthlyNotes:{
+   '2021-06':'All-time high: 100K after $4K/3 months. Only ran ~4 months.',
+   '2021-10':'Back to 60K standard.',
+   '2023-03':'80K public offer ran Mar–May 2023.',
+   '2025-06':'Standard permanently raised to 75K.',
+   '2026-06':'100K back with major card refresh (Jun 2026): Hyatt transfer cut to 4:3, hotel credit raised to $100, new bonus categories added.',
+ },
+ ...fillMonths([
+   {from:'2016-01',to:'2017-12',val:50},
+   {from:'2018-01',to:'2019-12',val:50},
+   {from:'2020-01',to:'2021-05',val:60},
+   {from:'2021-06',to:'2021-09',val:100},
+   {from:'2021-10',to:'2022-02',val:60},
+   {from:'2022-03',to:'2022-11',val:65},
+   {from:'2022-12',to:'2023-02',val:60},
+   {from:'2023-03',to:'2023-05',val:80},
+   {from:'2023-06',to:'2024-04',val:60},
+   {from:'2024-05',to:'2024-06',val:75},
+   {from:'2024-07',to:'2025-03',val:60},
+   {from:'2025-04',to:'2025-05',val:75},
+   {from:'2025-06',to:'2025-12',val:75},
+   {from:'2026-01',to:'2026-05',val:75},
+   {from:'2026-06',to:'2026-06',val:100},
+ ])
+},
+{id:'chase-csr',issuer:'chase',name:'Chase Sapphire Reserve®',af:795,
+ current:'100k after $6k / 3 months',atb:'150k after $6k / 3 months',
+ rating:'great',conf:'high',
+ link:'https://monkeymiles.boardingarea.com/chase-sapphire-reserve-review/',
+ tags:['chase','sapphire','reserve','ultimate rewards','personal'],
+ approx:false,
+ elevated:[
+   ALL_MONTHS.indexOf('2016-08'),ALL_MONTHS.indexOf('2016-09'),ALL_MONTHS.indexOf('2016-10'),
+   ALL_MONTHS.indexOf('2022-10'),ALL_MONTHS.indexOf('2022-11'),ALL_MONTHS.indexOf('2022-12'),
+   ALL_MONTHS.indexOf('2024-05'),ALL_MONTHS.indexOf('2024-06'),
+   ALL_MONTHS.indexOf('2025-06'),ALL_MONTHS.indexOf('2025-07'),
+   ALL_MONTHS.indexOf('2026-05'),ALL_MONTHS.indexOf('2026-06'),
+ ],
+ monthlyNotes:{
+   '2016-08':'Launch: 100K — servers crashed from demand.',
+   '2016-11':'Standard dropped to 50K.',
+   '2022-10':'80K elevated offer Oct 2022–Jan 2023.',
+   '2025-06':'Major refresh: fee $550→$795. 100K+ offers returned.',
+   '2026-05':'150K all-time high offer launched.',
+ },
+ ...fillMonths([
+   {from:'2016-08',to:'2016-10',val:100},
+   {from:'2016-11',to:'2022-05',val:50},
+   {from:'2022-06',to:'2022-09',val:60},
+   {from:'2022-10',to:'2023-01',val:80},
+   {from:'2023-02',to:'2024-04',val:60},
+   {from:'2024-05',to:'2024-06',val:75},
+   {from:'2024-07',to:'2025-05',val:60},
+   {from:'2025-06',to:'2026-04',val:100},
+   {from:'2026-05',to:'2026-06',val:150},
+ ])
+},
+{id:'chase-csr-biz',issuer:'chase',name:'Chase Sapphire Reserve® for Business',af:795,
+ current:'200k after $30k / 6 months',atb:'200k after $30k / 6 months',
+ rating:'great',conf:'low',
+ link:'https://monkeymiles.boardingarea.com/chase-sapphire-reserve-business/',
+ tags:['chase','sapphire','reserve','business','ultimate rewards'],
+ approx:true,
+ elevated:[ALL_MONTHS.indexOf('2025-06')],
+ monthlyNotes:{'2025-06':'Card launched June 2025.'},
+ ...fillMonths([
+   {from:'2025-06',to:'2025-12',val:200},
+   {from:'2026-01',to:'2026-05',val:150},
+   {from:'2026-06',to:'2026-06',val:200},
+ ])
+},
+{id:'chase-ink-pref',issuer:'chase',name:'Ink Business Preferred® Credit Card',af:95,
+ current:'100k after $8k / 3 months',atb:'120k after $8k / 3 months (Jul–Sep 2024)',
+ rating:'great',conf:'high',
+ link:'https://monkeymiles.boardingarea.com/chase-ink-business-preferred/',
+ tags:['chase','ink','business','ultimate rewards','preferred'],
+ approx:false,
+ elevated:[
+   ALL_MONTHS.indexOf('2020-03'),ALL_MONTHS.indexOf('2020-04'),ALL_MONTHS.indexOf('2020-05'),
+   ALL_MONTHS.indexOf('2024-07'),ALL_MONTHS.indexOf('2024-08'),ALL_MONTHS.indexOf('2024-09'),
+ ],
+ monthlyNotes:{
+   '2017-01':'80K standard. $15K spend req.',
+   '2020-03':'100K COVID elevation.',
+   '2023-01':'Spend req cut from $15K to $8K.',
+   '2024-07':'120K all-time best (Jul–Sep 2024).',
+   '2024-10':'Back to 100K.',
+ },
+ ...fillMonths([
+   {from:'2017-01',to:'2020-02',val:80},
+   {from:'2020-03',to:'2022-12',val:100},
+   {from:'2023-01',to:'2024-06',val:80},
+   {from:'2024-07',to:'2024-09',val:120},
+   {from:'2024-10',to:'2025-10',val:90},
+   {from:'2025-11',to:'2026-06',val:100},
+ ],[
+   {from:'2019-01',to:'2020-02',val:100},
+   {from:'2024-07',to:'2026-06',val:120},
+ ])
+},
+{id:'chase-ink-cash',issuer:'chase',name:'Ink Business Cash® Credit Card',af:0,
+ current:'100k after $8k / 4 months',atb:'100k after $8k / 4 months',
+ rating:'great',conf:'high',
+ link:'https://monkeymiles.boardingarea.com/chase-ink-business-cash/',
+ tags:['chase','ink','business','ultimate rewards','cash','no fee'],
+ approx:false,
+ elevated:[
+   ALL_MONTHS.indexOf('2020-03'),ALL_MONTHS.indexOf('2020-04'),
+   ALL_MONTHS.indexOf('2024-01'),ALL_MONTHS.indexOf('2024-02'),
+ ],
+ monthlyNotes:{'2024-01':'$900 (equiv 100K pts) offer with $8K/4 month req.'},
+ ...fillMonths([
+   {from:'2016-01',to:'2020-02',val:50},// $500 equiv
+   {from:'2020-03',to:'2022-12',val:75},// $750
+   {from:'2023-01',to:'2024-12',val:90},// $900 / 100K
+   {from:'2025-01',to:'2026-06',val:100},
+ ])
+},
+{id:'chase-ink-unl',issuer:'chase',name:'Ink Business Unlimited® Credit Card',af:0,
+ current:'100k after $8k / 4 months',atb:'100k after $8k / 4 months',
+ rating:'great',conf:'high',
+ link:'https://monkeymiles.boardingarea.com/chase-ink-business-unlimited/',
+ tags:['chase','ink','business','ultimate rewards','unlimited','no fee'],
+ approx:false,
+ elevated:[ALL_MONTHS.indexOf('2020-03'),ALL_MONTHS.indexOf('2024-01')],
+ monthlyNotes:{},
+ ...fillMonths([
+   {from:'2018-01',to:'2020-02',val:50},
+   {from:'2020-03',to:'2022-12',val:75},
+   {from:'2023-01',to:'2024-12',val:90},
+   {from:'2025-01',to:'2025-10',val:90},
+   {from:'2025-11',to:'2026-05',val:75},
+   {from:'2026-06',to:'2026-06',val:100},
+ ])
+},
+{id:'chase-ink-prem',issuer:'chase',name:'Ink Business Premier® Credit Card',af:195,
+ current:'$1000 after $10k / 3 months',atb:'$1500 targeted via banker / Chase account',
+ rating:'great',conf:'med',
+ link:'https://monkeymiles.boardingarea.com/chase-ink-business-premier/',
+ tags:['chase','ink','business','premier','cash'],
+ approx:true,
+ elevated:[ALL_MONTHS.indexOf('2024-06')],
+ monthlyNotes:{'2023-01':'Card launched ~2023.'},
+ isCash:true,
+ ...fillMonths([
+   {from:'2023-01',to:'2025-12',val:1000},
+   {from:'2026-01',to:'2026-06',val:1000},
+ ],[
+   {from:'2023-01',to:'2026-06',val:1500},
+ ])
+},
+{id:'chase-ff',issuer:'chase',name:'Chase Freedom Flex®',af:0,
+ current:'20k after $500 / 3 months',atb:'20k + 10x grocery for 12 months',
+ rating:'below',conf:'med',
+ link:'https://monkeymiles.boardingarea.com/chase-freedom-flex/',
+ tags:['chase','freedom','flex','personal','no fee','cash'],
+ approx:true,
+ elevated:[ALL_MONTHS.indexOf('2022-12'),ALL_MONTHS.indexOf('2023-01')],
+ monthlyNotes:{},
+ isCash:true,
+ ...fillMonths([{from:'2020-09',to:'2026-06',val:200}])
+},
+{id:'chase-ffu',issuer:'chase',name:'Chase Freedom Unlimited®',af:0,
+ current:'$250 or 25k after $500 / 3 months',atb:'Double cashback for a year, unlimited',
+ rating:'below',conf:'med',
+ link:'https://monkeymiles.boardingarea.com/chase-freedom-unlimited/',
+ tags:['chase','freedom','unlimited','personal','no fee','cash'],
+ approx:true,
+ elevated:[ALL_MONTHS.indexOf('2022-12'),ALL_MONTHS.indexOf('2023-01')],
+ monthlyNotes:{},
+ isCash:true,
+ ...fillMonths([
+   {from:'2016-01',to:'2025-11',val:200},
+   {from:'2025-12',to:'2026-01',val:300},
+   {from:'2026-02',to:'2026-02',val:200},
+   {from:'2026-03',to:'2026-04',val:250},
+   {from:'2026-05',to:'2026-06',val:200},
+ ])
+},
+{id:'chase-hyatt',issuer:'chase',name:'World of Hyatt Credit Card',af:95,
+ current:'30k+15k (standard) — note official site says "60k" (misleading)',atb:'5 Free Nights (cat 1-4) after $5k+$15k spend (Jan 2026)',
+ rating:'good',conf:'high',
+ link:'https://monkeymiles.boardingarea.com/chase-world-of-hyatt-credit-card/',
+ tags:['chase','hyatt','hotel','personal'],
+ approx:false,
+ elevated:[ALL_MONTHS.indexOf('2022-06'),ALL_MONTHS.indexOf('2023-06'),ALL_MONTHS.indexOf('2026-01'),ALL_MONTHS.indexOf('2026-02')],
+ monthlyNotes:{
+   '2021-07':'Raised to 60k standard offer.',
+   '2026-01':'5 Free Nights (cat 1-4): 3FN after $5k/3mos + 2FN after $15k/6mos.',
+   '2026-02':'5FN expired → back to 30k+15k standard. Official site still says "60k" — misleading.',
+ },
+ ...fillMonths([
+   {from:'2016-01',to:'2021-06',val:40},
+   {from:'2021-07',to:'2025-12',val:60},
+   {from:'2026-01',to:'2026-01',val:60},
+   {from:'2026-02',to:'2026-06',val:45},
+ ])
+},
+{id:'chase-hyatt-biz',issuer:'chase',name:'World of Hyatt Business Credit Card',af:199,
+ current:'60k after $5k / 3 months',atb:'80k after $10k / 3 months (Jan 2024) or 60k+1FN (Jan 2025)',
+ rating:'good',conf:'high',
+ link:'https://monkeymiles.boardingarea.com/chase-world-of-hyatt-business-card/',
+ tags:['chase','hyatt','hotel','business'],
+ approx:false,
+ elevated:[ALL_MONTHS.indexOf('2024-01'),ALL_MONTHS.indexOf('2025-01'),ALL_MONTHS.indexOf('2025-02'),ALL_MONTHS.indexOf('2025-05'),ALL_MONTHS.indexOf('2025-06')],
+ monthlyNotes:{
+   '2024-01':'80k elevated offer ran Jan 2024.',
+   '2025-01':'60k+1FN, expires 2025.3.6.',
+   '2025-05':'60k+Explorist membership (exp 2/28/2026); $7k spend req.',
+   '2025-07':'expired → 60k standard.',
+   '2026-05':'60k current offer.',
+ },
+ ...fillMonths([
+   {from:'2020-01',to:'2023-12',val:60},
+   {from:'2024-01',to:'2024-06',val:80},
+   {from:'2024-07',to:'2024-12',val:60},
+   {from:'2025-01',to:'2025-02',val:60},
+   {from:'2025-03',to:'2025-04',val:60},
+   {from:'2025-05',to:'2025-06',val:60},
+   {from:'2025-07',to:'2026-06',val:60},
+ ])
+},
+{id:'chase-ihg',issuer:'chase',name:'IHG One Rewards Premier Credit Card',af:99,
+ current:'140k after $3k / 3 months',atb:'5 free nights up to 60k each after $4k / 3 months (May 2025)',
+ rating:'great',conf:'high',
+ link:'https://monkeymiles.boardingarea.com/ihg-credit-card-offers/',
+ tags:['chase','ihg','hotel','personal'],
+ approx:false,
+ elevated:[ALL_MONTHS.indexOf('2023-09'),ALL_MONTHS.indexOf('2025-05'),ALL_MONTHS.indexOf('2025-06'),ALL_MONTHS.indexOf('2025-09'),ALL_MONTHS.indexOf('2026-01'),ALL_MONTHS.indexOf('2026-02'),ALL_MONTHS.indexOf('2026-04'),ALL_MONTHS.indexOf('2026-05'),ALL_MONTHS.indexOf('2026-06')],
+ monthlyNotes:{
+   '2023-09':'140k+ elevated offer ran Sep 2023.',
+   '2025-05':'5 Free Nights (up to 60k each) — best ever offer on this card.',
+   '2025-07':'5FN expired → 140k standard.',
+   '2025-09':'165k offer.',
+   '2025-10':'expired → 140k.',
+   '2026-01':'175k, expires 2026.3.18.',
+   '2026-03':'expired → 140k.',
+   '2026-04':'185k — best points offer ever on this card (current).',
+ },
+ ...fillMonths([
+   {from:'2016-01',to:'2021-12',val:80},
+   {from:'2022-01',to:'2023-08',val:125},
+   {from:'2023-09',to:'2025-04',val:150},
+   {from:'2025-05',to:'2025-06',val:150},
+   {from:'2025-07',to:'2025-08',val:140},
+   {from:'2025-09',to:'2025-09',val:165},
+   {from:'2025-10',to:'2025-12',val:140},
+   {from:'2026-01',to:'2026-02',val:175},
+   {from:'2026-03',to:'2026-03',val:140},
+   {from:'2026-04',to:'2026-06',val:185},
+ ],[
+   {from:'2022-01',to:'2025-04',val:140},
+   {from:'2025-05',to:'2025-06',val:175},
+   {from:'2025-07',to:'2025-08',val:140},
+   {from:'2025-09',to:'2025-09',val:165},
+   {from:'2025-10',to:'2025-12',val:140},
+   {from:'2026-01',to:'2026-02',val:175},
+   {from:'2026-03',to:'2026-03',val:140},
+   {from:'2026-04',to:'2026-06',val:185},
+ ])
+},
+{id:'chase-ihg-trav',issuer:'chase',name:'IHG One Rewards Traveler Credit Card',af:0,
+ current:'80k after $2k / 3 months',atb:'125k (90k+35k tiered)',
+ rating:'good',conf:'high',
+ link:'https://monkeymiles.boardingarea.com/ihg-credit-card-offers/',
+ tags:['chase','ihg','hotel','personal','no fee'],
+ approx:false,
+ elevated:[ALL_MONTHS.indexOf('2025-05'),ALL_MONTHS.indexOf('2025-09'),ALL_MONTHS.indexOf('2026-01'),ALL_MONTHS.indexOf('2026-04'),ALL_MONTHS.indexOf('2026-05'),ALL_MONTHS.indexOf('2026-06')],
+ monthlyNotes:{
+   '2025-05':'120k offer.',
+   '2025-07':'expired → 80k.',
+   '2025-09':'2 Free Nights (up to 50k) + 40k points.',
+   '2025-10':'expired → 80k.',
+   '2026-01':'120k, expires 2026.3.18.',
+   '2026-03':'expired → 80k.',
+   '2026-04':'125k — best ever offer on this card.',
+ },
+ ...fillMonths([
+   {from:'2022-01',to:'2025-04',val:80},
+   {from:'2025-05',to:'2025-06',val:120},
+   {from:'2025-07',to:'2025-08',val:80},
+   {from:'2025-09',to:'2025-09',val:90},
+   {from:'2025-10',to:'2025-12',val:80},
+   {from:'2026-01',to:'2026-02',val:120},
+   {from:'2026-03',to:'2026-03',val:80},
+   {from:'2026-04',to:'2026-06',val:125},
+ ],[
+   {from:'2022-01',to:'2025-04',val:100},
+   {from:'2025-05',to:'2025-06',val:120},
+   {from:'2025-07',to:'2025-08',val:80},
+   {from:'2025-09',to:'2025-09',val:90},
+   {from:'2025-10',to:'2025-12',val:80},
+   {from:'2026-01',to:'2026-02',val:120},
+   {from:'2026-03',to:'2026-03',val:80},
+   {from:'2026-04',to:'2026-06',val:125},
+ ])
+},
+{id:'chase-ihg-biz',issuer:'chase',name:'IHG One Rewards Business Credit Card',af:99,
+ current:'140k after $4k / 3 months',atb:'200k (140k+60k tiered) multiple times',
+ rating:'great',conf:'high',
+ link:'https://monkeymiles.boardingarea.com/ihg-credit-card-offers/',
+ tags:['chase','ihg','hotel','business'],
+ approx:false,
+ elevated:[ALL_MONTHS.indexOf('2025-03'),ALL_MONTHS.indexOf('2025-04'),ALL_MONTHS.indexOf('2025-09'),ALL_MONTHS.indexOf('2025-10'),ALL_MONTHS.indexOf('2026-03'),ALL_MONTHS.indexOf('2026-04'),ALL_MONTHS.indexOf('2026-05')],
+ monthlyNotes:{
+   '2025-03':'200k — best ever offer.',
+   '2025-05':'expired → 140k.',
+   '2025-09':'200k back.',
+   '2025-10':'expired → 140k.',
+   '2026-03':'200k back.',
+   '2026-05':'expired → 140k (current).',
+ },
+ ...fillMonths([
+   {from:'2022-01',to:'2023-12',val:100},
+   {from:'2024-01',to:'2025-02',val:140},
+   {from:'2025-03',to:'2025-04',val:200},
+   {from:'2025-05',to:'2025-08',val:140},
+   {from:'2025-09',to:'2025-10',val:200},
+   {from:'2025-11',to:'2026-02',val:140},
+   {from:'2026-03',to:'2026-04',val:200},
+   {from:'2026-05',to:'2026-06',val:140},
+ ],[
+   {from:'2023-01',to:'2025-02',val:165},
+   {from:'2025-03',to:'2025-04',val:200},
+   {from:'2025-05',to:'2025-08',val:165},
+   {from:'2025-09',to:'2025-10',val:200},
+   {from:'2025-11',to:'2026-02',val:165},
+   {from:'2026-03',to:'2026-04',val:200},
+   {from:'2026-05',to:'2026-06',val:165},
+ ])
+},
+{id:'chase-marr-bound',issuer:'chase',name:'Marriott Bonvoy Boundless® Credit Card',af:99,
+ current:'3 nights after $3k + 1 free night after $4k / 3 months (up to 50k each)',atb:'Five nights up to 50k each after $3k / 3 months',
+ rating:'great',conf:'med',
+ link:'https://monkeymiles.boardingarea.com/marriott-credit-card-offers/',
+ tags:['chase','marriott','hotel','personal'],
+ approx:true,
+ elevated:[ALL_MONTHS.indexOf('2022-06'),ALL_MONTHS.indexOf('2023-03'),ALL_MONTHS.indexOf('2024-09')],
+ monthlyNotes:{},
+ ...fillMonths([
+   {from:'2016-01',to:'2021-12',val:75},
+   {from:'2022-01',to:'2026-06',val:125},
+ ])
+},
+{id:'chase-marr-bold',issuer:'chase',name:'Marriott Bonvoy Bold® Credit Card',af:0,
+ current:'30k after $1k / 3 months',atb:'60k after $2k / 3 months',
+ rating:'below',conf:'low',
+ link:'https://monkeymiles.boardingarea.com/marriott-credit-card-offers/',
+ tags:['chase','marriott','hotel','personal','no fee'],
+ approx:true,
+ elevated:[ALL_MONTHS.indexOf('2022-06')],
+ monthlyNotes:{},
+ ...fillMonths([
+   {from:'2019-01',to:'2022-06',val:30},
+   {from:'2022-07',to:'2023-06',val:60},
+   {from:'2023-07',to:'2026-06',val:30},
+ ])
+},
+{id:'chase-marr-bount',issuer:'chase',name:'Marriott Bonvoy Bountiful™ Credit Card',af:250,
+ current:'85k after $4k / 3 months',atb:'85k after $4k / 3 months',
+ rating:'good',conf:'low',
+ link:'https://monkeymiles.boardingarea.com/marriott-credit-card-offers/',
+ tags:['chase','marriott','hotel','personal'],
+ approx:true,
+ elevated:[],
+ monthlyNotes:{},
+ ...fillMonths([{from:'2023-01',to:'2026-06',val:85}])
+},
+{id:'chase-ba',issuer:'chase',name:'British Airways Visa Signature® Card',af:95,
+ current:'75k after $5k / 3 months',atb:'100k after $5k / 3 months',
+ rating:'good',conf:'med',
+ link:'https://creditcards.chase.com/avios/cards',
+ tags:['chase','british airways','avios','airline','personal'],
+ approx:true,
+ elevated:[ALL_MONTHS.indexOf('2022-03'),ALL_MONTHS.indexOf('2023-03')],
+ monthlyNotes:{},
+ ...fillMonths([
+   {from:'2016-01',to:'2021-12',val:50},
+   {from:'2022-01',to:'2026-06',val:75},
+ ],[
+   {from:'2022-01',to:'2026-06',val:100},
+ ])
+},
+{id:'chase-iberia',issuer:'chase',name:'Iberia Visa Signature® Card',af:95,
+ current:'75k after $5k / 3 months',atb:'100k after $5k / 3 months',
+ rating:'good',conf:'low',
+ link:'https://creditcards.chase.com/avios/cards',
+ tags:['chase','iberia','avios','airline','personal'],
+ approx:true,
+ elevated:[],
+ monthlyNotes:{},
+ ...fillMonths([
+   {from:'2019-01',to:'2021-12',val:50},
+   {from:'2022-01',to:'2026-06',val:75},
+ ],[{from:'2022-01',to:'2026-06',val:100}])
+},
+{id:'chase-aer',issuer:'chase',name:'Aer Lingus Visa Signature® Card',af:95,
+ current:'75k after $5k / 3 months',atb:'100k after $5k / 3 months',
+ rating:'good',conf:'low',
+ link:'https://creditcards.chase.com/avios/cards',
+ tags:['chase','aer lingus','avios','airline','personal'],
+ approx:true,
+ elevated:[],
+ monthlyNotes:{},
+ ...fillMonths([
+   {from:'2019-01',to:'2021-12',val:50},
+   {from:'2022-01',to:'2026-06',val:75},
+ ],[{from:'2022-01',to:'2026-06',val:100}])
+},
+{id:'chase-sw-plus',issuer:'chase',name:'Southwest Rapid Rewards® Plus Credit Card',af:99,
+ current:'80k after $1k / 3 months',atb:'100k (Jul 2025 — best ever)',
+ rating:'great',conf:'high',
+ link:'https://monkeymiles.boardingarea.com/southwest-credit-card-offer/',
+ tags:['chase','southwest','airline','personal'],
+ approx:false,
+ elevated:[ALL_MONTHS.indexOf('2021-02'),ALL_MONTHS.indexOf('2022-02'),ALL_MONTHS.indexOf('2023-02'),ALL_MONTHS.indexOf('2025-07'),ALL_MONTHS.indexOf('2025-08'),ALL_MONTHS.indexOf('2025-09'),ALL_MONTHS.indexOf('2025-10'),ALL_MONTHS.indexOf('2026-05'),ALL_MONTHS.indexOf('2026-06')],
+ monthlyNotes:{
+   '2021-02':'Best offers often appear Feb for companion pass strategy.',
+   '2025-07':'Card fully renewed. AF $69→$99. New offer 100k — best ever.',
+   '2025-10':'85k offer.',
+   '2025-12':'expired → 50k.',
+   '2026-05':'80k offer (current).',
+ },
+ ...fillMonths([
+   {from:'2016-01',to:'2021-06',val:40},
+   {from:'2021-07',to:'2023-06',val:65},
+   {from:'2023-07',to:'2025-06',val:80},
+   {from:'2025-07',to:'2025-07',val:100},
+   {from:'2025-08',to:'2025-09',val:85},
+   {from:'2025-10',to:'2025-10',val:85},
+   {from:'2025-11',to:'2025-11',val:50},
+   {from:'2025-12',to:'2026-04',val:50},
+   {from:'2026-05',to:'2026-06',val:80},
+ ],[{from:'2021-01',to:'2026-06',val:100}])
+},
+{id:'chase-sw-prio',issuer:'chase',name:'Southwest Rapid Rewards® Priority Credit Card',af:229,
+ current:'90k after $3k / 3 months',atb:'100k (Jul 2025 — best ever)',
+ rating:'great',conf:'high',
+ link:'https://monkeymiles.boardingarea.com/southwest-credit-card-offer/',
+ tags:['chase','southwest','airline','personal'],
+ approx:false,
+ elevated:[ALL_MONTHS.indexOf('2021-02'),ALL_MONTHS.indexOf('2022-02'),ALL_MONTHS.indexOf('2023-02'),ALL_MONTHS.indexOf('2025-07'),ALL_MONTHS.indexOf('2025-08'),ALL_MONTHS.indexOf('2025-09'),ALL_MONTHS.indexOf('2025-10'),ALL_MONTHS.indexOf('2026-05'),ALL_MONTHS.indexOf('2026-06')],
+ monthlyNotes:{
+   '2025-07':'Card fully renewed. AF $149→$229. 100k — best ever.',
+   '2025-10':'85k offer.',
+   '2025-12':'expired → 60k.',
+   '2026-05':'90k offer (current).',
+ },
+ ...fillMonths([
+   {from:'2019-01',to:'2021-06',val:40},
+   {from:'2021-07',to:'2023-06',val:75},
+   {from:'2023-07',to:'2025-06',val:85},
+   {from:'2025-07',to:'2025-07',val:100},
+   {from:'2025-08',to:'2025-10',val:85},
+   {from:'2025-11',to:'2026-04',val:60},
+   {from:'2026-05',to:'2026-06',val:90},
+ ],[{from:'2021-01',to:'2026-06',val:100}])
+},
+{id:'chase-sw-prem',issuer:'chase',name:'Southwest Rapid Rewards® Premier Credit Card',af:149,
+ current:'85k after $2k / 3 months',atb:'100k (Jul 2025 — best ever)',
+ rating:'great',conf:'high',
+ link:'https://monkeymiles.boardingarea.com/southwest-credit-card-offer/',
+ tags:['chase','southwest','airline','personal'],
+ approx:false,
+ elevated:[ALL_MONTHS.indexOf('2021-02'),ALL_MONTHS.indexOf('2022-02'),ALL_MONTHS.indexOf('2023-02'),ALL_MONTHS.indexOf('2025-07'),ALL_MONTHS.indexOf('2025-08'),ALL_MONTHS.indexOf('2025-09'),ALL_MONTHS.indexOf('2025-10'),ALL_MONTHS.indexOf('2026-05'),ALL_MONTHS.indexOf('2026-06')],
+ monthlyNotes:{
+   '2025-07':'Card fully renewed. AF $99→$149. 100k — best ever.',
+   '2025-10':'85k offer.',
+   '2025-12':'expired → 55k.',
+   '2026-05':'85k offer (current).',
+ },
+ ...fillMonths([
+   {from:'2016-01',to:'2021-06',val:40},
+   {from:'2021-07',to:'2023-06',val:65},
+   {from:'2023-07',to:'2025-06',val:90},
+   {from:'2025-07',to:'2025-07',val:100},
+   {from:'2025-08',to:'2025-10',val:85},
+   {from:'2025-11',to:'2026-04',val:55},
+   {from:'2026-05',to:'2026-06',val:85},
+ ],[{from:'2021-01',to:'2026-06',val:100}])
+},
+{id:'chase-sw-perf-biz',issuer:'chase',name:'Southwest Rapid Rewards® Performance Business Credit Card',af:299,
+ current:'80k after $5k / 3 months',atb:'120k after $5k (Sep 2025 + companion pass)',
+ rating:'great',conf:'high',
+ link:'https://monkeymiles.boardingarea.com/southwest-credit-card-offer/',
+ tags:['chase','southwest','airline','business'],
+ approx:false,
+ elevated:[ALL_MONTHS.indexOf('2021-02'),ALL_MONTHS.indexOf('2023-02'),ALL_MONTHS.indexOf('2025-09'),ALL_MONTHS.indexOf('2025-10')],
+ monthlyNotes:{
+   '2025-07':'Card fully renewed. AF $199→$299.',
+   '2025-09':'120k offer — includes companion pass directly after spending.',
+   '2025-10':'expired → 80k (current).',
+ },
+ ...fillMonths([
+   {from:'2019-01',to:'2022-06',val:60},
+   {from:'2022-07',to:'2025-08',val:80},
+   {from:'2025-09',to:'2025-10',val:120},
+   {from:'2025-11',to:'2026-06',val:80},
+ ],[{from:'2021-01',to:'2026-06',val:120}])
+},
+{id:'chase-sw-prem-biz',issuer:'chase',name:'Southwest Rapid Rewards® Premier Business Credit Card',af:149,
+ current:'60k after $3k / 3 months',atb:'120k (60k+60k tiered with companion pass)',
+ rating:'good',conf:'high',
+ link:'https://monkeymiles.boardingarea.com/southwest-credit-card-offer/',
+ tags:['chase','southwest','airline','business'],
+ approx:false,
+ elevated:[ALL_MONTHS.indexOf('2021-02'),ALL_MONTHS.indexOf('2023-02'),ALL_MONTHS.indexOf('2024-06'),ALL_MONTHS.indexOf('2024-07'),ALL_MONTHS.indexOf('2024-08')],
+ monthlyNotes:{
+   '2024-06':'60k+60k tiered offer — companion pass directly after meeting spend.',
+   '2025-01':'expired → 60k standard.',
+   '2025-07':'Card renewed. AF $99→$149.',
+ },
+ ...fillMonths([
+   {from:'2016-01',to:'2024-05',val:60},
+   {from:'2024-06',to:'2024-08',val:120},
+   {from:'2024-09',to:'2026-06',val:60},
+ ],[{from:'2021-01',to:'2026-06',val:120}])
+},
+{id:'chase-aeroplan',issuer:'chase',name:'Aeroplan® Credit Card',af:95,
+ current:'75k after $4k / 3 months',atb:'Two 50k certs after $3k / 3 months',
+ rating:'great',conf:'med',
+ link:'https://monkeymiles.boardingarea.com/review-chase-aeroplan-credit-card/',
+ tags:['chase','aeroplan','air canada','airline','personal'],
+ approx:true,
+ elevated:[ALL_MONTHS.indexOf('2023-03'),ALL_MONTHS.indexOf('2024-03')],
+ monthlyNotes:{'2021-10':'Card launched Oct 2021.'},
+ ...fillMonths([
+   {from:'2021-10',to:'2022-12',val:60},
+   {from:'2023-01',to:'2023-06',val:70},
+   {from:'2023-07',to:'2026-06',val:75},
+ ])
+},
+{id:'chase-united-exp',issuer:'chase',name:'United℠ Explorer Card',af:150,
+ current:'60k after $3k / 3 months + 10k with AU',atb:'90k elevated (Apr 2025)',
+ rating:'good',conf:'high',
+ link:'https://monkeymiles.boardingarea.com/best-united-credit-cards-offers/',
+ tags:['chase','united','airline','personal'],
+ approx:false,
+ elevated:[ALL_MONTHS.indexOf('2022-03'),ALL_MONTHS.indexOf('2023-09'),ALL_MONTHS.indexOf('2025-04'),ALL_MONTHS.indexOf('2025-05'),ALL_MONTHS.indexOf('2026-01'),ALL_MONTHS.indexOf('2026-02'),ALL_MONTHS.indexOf('2026-03'),ALL_MONTHS.indexOf('2026-04')],
+ monthlyNotes:{
+   '2025-04':'90k elevated offer (link with 80k base + 5k AU + 5k approval).',
+   '2025-06':'lowered → 70k. Jun 2026 refresh added 10% off UA award flights.',
+   '2026-01':'80k, expires 2026.5.20.',
+   '2026-05':'expired → 60k (current).',
+ },
+ ...fillMonths([
+   {from:'2016-01',to:'2020-06',val:40},
+   {from:'2020-07',to:'2022-06',val:65},
+   {from:'2022-07',to:'2025-03',val:70},
+   {from:'2025-04',to:'2025-05',val:90},
+   {from:'2025-06',to:'2025-12',val:70},
+   {from:'2026-01',to:'2026-04',val:80},
+   {from:'2026-05',to:'2026-06',val:60},
+ ],[{from:'2020-07',to:'2026-06',val:90}])
+},
+{id:'chase-united-quest',issuer:'chase',name:'United Quest℠ Card',af:350,
+ current:'70k after $4k / 3 months + 10k with AU',atb:'100k best ever (Jun 2025 & Apr 2026)',
+ rating:'great',conf:'high',
+ link:'https://monkeymiles.boardingarea.com/best-united-credit-cards-offers/',
+ tags:['chase','united','airline','personal'],
+ approx:false,
+ elevated:[ALL_MONTHS.indexOf('2025-06'),ALL_MONTHS.indexOf('2025-07'),ALL_MONTHS.indexOf('2026-01'),ALL_MONTHS.indexOf('2026-02'),ALL_MONTHS.indexOf('2026-03'),ALL_MONTHS.indexOf('2026-04')],
+ monthlyNotes:{
+   '2021-01':'Card launched ~2021.',
+   '2025-06':'lowered→80k then jumped to 100k best ever. Two updates same month.',
+   '2025-08':'lowered → 80k.',
+   '2026-01':'90k (exp 2026.4.1).',
+   '2026-04':'100k (exp 2026.5.20). New 10% off UA award flights benefit.',
+   '2026-05':'expired → 70k (current).',
+ },
+ ...fillMonths([
+   {from:'2021-01',to:'2025-05',val:80},
+   {from:'2025-06',to:'2025-07',val:100},
+   {from:'2025-08',to:'2025-12',val:80},
+   {from:'2026-01',to:'2026-03',val:90},
+   {from:'2026-04',to:'2026-04',val:100},
+   {from:'2026-05',to:'2026-06',val:70},
+ ],[{from:'2021-01',to:'2026-06',val:100}])
+},
+{id:'chase-united-club',issuer:'chase',name:'United Club℠ Card',af:695,
+ current:'90k after $5k / 3 months + 10k with AU',atb:'120k after $6k / 3 months (2024)',
+ rating:'great',conf:'high',
+ link:'https://monkeymiles.boardingarea.com/best-united-credit-cards-offers/',
+ tags:['chase','united','airline','personal'],
+ approx:false,
+ elevated:[ALL_MONTHS.indexOf('2024-07'),ALL_MONTHS.indexOf('2025-04'),ALL_MONTHS.indexOf('2025-05'),ALL_MONTHS.indexOf('2026-04')],
+ monthlyNotes:{
+   '2024-07':'2024.7: 120k best ever offer.',
+   '2025-04':'105k elevated link.',
+   '2025-06':'lowered → 90k.',
+   '2025-07':'lowered → 70k.',
+   '2026-04':'110k (exp 2026.5.20).',
+   '2026-05':'expired → 90k (current).',
+ },
+ ...fillMonths([
+   {from:'2016-01',to:'2022-06',val:65},
+   {from:'2022-07',to:'2024-06',val:80},
+   {from:'2024-07',to:'2024-09',val:120},
+   {from:'2024-10',to:'2025-03',val:100},
+   {from:'2025-04',to:'2025-05',val:105},
+   {from:'2025-06',to:'2025-06',val:90},
+   {from:'2025-07',to:'2026-03',val:70},
+   {from:'2026-04',to:'2026-04',val:110},
+   {from:'2026-05',to:'2026-06',val:90},
+ ],[{from:'2022-07',to:'2026-06',val:120}])
+},
+{id:'chase-united-biz',issuer:'chase',name:'United℠ Business Card',af:150,
+ current:'100k + 2500 PQP after $5k / 3 months + 10k with employee',atb:'130k elevated (Apr 2025)',
+ rating:'great',conf:'high',
+ link:'https://monkeymiles.boardingarea.com/best-united-credit-cards-offers/',
+ tags:['chase','united','airline','business'],
+ approx:false,
+ elevated:[ALL_MONTHS.indexOf('2025-04'),ALL_MONTHS.indexOf('2025-05'),ALL_MONTHS.indexOf('2025-07'),ALL_MONTHS.indexOf('2025-08')],
+ monthlyNotes:{
+   '2025-04':'130k elevated link (125k+5k AU). Expires Jun 4.',
+   '2025-06':'lowered → 85k.',
+   '2025-07':'110k (exp Nov 5). Incl. 10k when adding employee.',
+   '2025-11':'Settled to 100k + 2500 PQP standard.',
+ },
+ ...fillMonths([
+   {from:'2019-01',to:'2022-06',val:75},
+   {from:'2022-07',to:'2025-03',val:100},
+   {from:'2025-04',to:'2025-05',val:130},
+   {from:'2025-06',to:'2025-06',val:85},
+   {from:'2025-07',to:'2025-10',val:110},
+   {from:'2025-11',to:'2026-06',val:100},
+ ],[{from:'2022-07',to:'2026-06',val:130}])
+},
+{id:'chase-united-club-biz',issuer:'chase',name:'United Club℠ Business Card',af:695,
+ current:'100k after $5k / 3 months + 1000 PQP + 10k with employee',atb:'110k (Jul 2025)',
+ rating:'great',conf:'high',
+ link:'https://monkeymiles.boardingarea.com/best-united-credit-cards-offers/',
+ tags:['chase','united','airline','business'],
+ approx:false,
+ elevated:[ALL_MONTHS.indexOf('2025-07'),ALL_MONTHS.indexOf('2025-08'),ALL_MONTHS.indexOf('2025-09'),ALL_MONTHS.indexOf('2025-10')],
+ monthlyNotes:{
+   '2025-06':'lowered → 90k.',
+   '2025-07':'110k (exp Nov 5). Best ever. Includes 10k when adding employee.',
+   '2025-11':'Settled back to 100k standard.',
+ },
+ ...fillMonths([
+   {from:'2019-01',to:'2022-12',val:65},
+   {from:'2023-01',to:'2025-05',val:100},
+   {from:'2025-06',to:'2025-06',val:90},
+   {from:'2025-07',to:'2025-10',val:110},
+   {from:'2025-11',to:'2026-06',val:100},
+ ])
+},
+{id:'chase-united-gw',issuer:'chase',name:'United Gateway℠ Card',af:0,
+ current:'40k after $1k / 3 months + 10k with AU',atb:'40k — best ever (Nov 2025)',
+ rating:'below',conf:'high',
+ link:'https://monkeymiles.boardingarea.com/best-united-credit-cards-offers/',
+ tags:['chase','united','airline','personal','no fee'],
+ approx:false,
+ elevated:[ALL_MONTHS.indexOf('2025-04'),ALL_MONTHS.indexOf('2025-07'),ALL_MONTHS.indexOf('2025-08'),ALL_MONTHS.indexOf('2025-11')],
+ monthlyNotes:{
+   '2025-04':'35k elevated link (30k+5k AU).',
+   '2025-07':'30k (exp Nov 5).',
+   '2025-11':'40k — best ever on this card.',
+ },
+ ...fillMonths([
+   {from:'2020-01',to:'2025-03',val:20},
+   {from:'2025-04',to:'2025-04',val:35},
+   {from:'2025-05',to:'2025-06',val:20},
+   {from:'2025-07',to:'2025-10',val:30},
+   {from:'2025-11',to:'2026-06',val:40},
+ ])
+},
+{id:'chase-prime',issuer:'chase',name:'Prime Visa',af:0,
+ current:'$150 after approval as Amazon gift card',atb:'$250 after approval as Amazon gift card',
+ rating:'below',conf:'low',
+ link:'https://www.amazon.com/Prime-Visa/dp/BT00LN946S',
+ tags:['chase','amazon','prime','personal','no fee','cash'],
+ approx:true,
+ elevated:[ALL_MONTHS.indexOf('2023-07')],
+ monthlyNotes:{},
+ isCash:true,
+ ...fillMonths([
+   {from:'2022-01',to:'2023-06',val:150},
+   {from:'2023-07',to:'2023-09',val:250},
+   {from:'2023-10',to:'2025-06',val:150},
+   {from:'2025-07',to:'2025-07',val:250},
+   {from:'2025-08',to:'2026-05',val:150},
+   {from:'2026-06',to:'2026-06',val:200},
+ ])
+},
+// ═══════════════════════════════════════════════════════════════
+// CITI
+// ═══════════════════════════════════════════════════════════════
+{id:'citi-strata',issuer:'citi',name:'Citi Strata™ Card',af:0,
+ current:'20k after $1k / 3 months',atb:'20k after $1k / 3 months',
+ rating:'below',conf:'low',
+ link:'https://www.citi.com/credit-cards/citi-strata-credit-card',
+ tags:['citi','strata','personal','no fee','thankyou'],
+ approx:true,
+ elevated:[],
+ monthlyNotes:{},
+ ...fillMonths([{from:'2024-01',to:'2026-06',val:20}])
+},
+{id:'citi-strata-prem',issuer:'citi',name:'Citi Strata Premier℠ Card',af:95,
+ current:'60k after $4k / 3 months',atb:'80k after $4k / 3 months (as Citi Premier)',
+ rating:'good',conf:'high',
+ link:'https://monkeymiles.boardingarea.com/monkey-miles-top-credit-card-picks/#Citi-Thank-You-Premier',
+ tags:['citi','strata','premier','thankyou','personal'],
+ approx:false,
+ elevated:[
+   ALL_MONTHS.indexOf('2020-06'),ALL_MONTHS.indexOf('2020-07'),ALL_MONTHS.indexOf('2020-08'),
+   ALL_MONTHS.indexOf('2022-09'),ALL_MONTHS.indexOf('2022-10'),ALL_MONTHS.indexOf('2022-11'),ALL_MONTHS.indexOf('2022-12'),
+ ],
+ monthlyNotes:{
+   '2020-06':'COVID elevation to 60K.',
+   '2022-09':'80K all-time best — ran through Jan 2023.',
+   '2024-05':'Rebranded from Citi Premier→Citi Strata Premier. New 75K launch offer.',
+   '2025-04':'60K current (settled down from 75K launch).',
+ },
+ ...fillMonths([
+   {from:'2016-01',to:'2020-05',val:50},
+   {from:'2020-06',to:'2022-08',val:60},
+   {from:'2022-09',to:'2023-01',val:80},
+   {from:'2023-02',to:'2024-04',val:75},
+   {from:'2024-05',to:'2025-03',val:75},
+   {from:'2025-04',to:'2026-06',val:60},
+ ],[{from:'2022-09',to:'2026-06',val:80}])
+},
+{id:'citi-dc',issuer:'citi',name:'Citi Double Cash® Card',af:0,
+ current:'$200 after $1500 / 3 months (20k ThankYou)',atb:'$200 or 20k ThankYou highest public',
+ rating:'below',conf:'low',
+ link:'https://www.citi.com/usc/LPACA/Citi/Cards/DoubleCash/ps_A/index.html',
+ tags:['citi','double cash','personal','no fee','cash'],
+ approx:true,
+ elevated:[],
+ monthlyNotes:{},
+ isCash:true,
+ ...fillMonths([{from:'2016-01',to:'2026-06',val:200}])
+},
+{id:'citi-strata-elite',issuer:'citi',name:'Citi Strata Elite Card',af:595,
+ current:'75k after $6k / 3 months',atb:'100k after $4k / 3 months',
+ rating:'good',conf:'med',
+ link:'https://monkeymiles.boardingarea.com/get-citi-strata-elite%E2%84%A0-card-100k-offer/',
+ tags:['citi','strata','elite','thankyou','personal'],
+ approx:true,
+ elevated:[ALL_MONTHS.indexOf('2024-03'),ALL_MONTHS.indexOf('2024-09')],
+ monthlyNotes:{'2024-03':'100K targeted best ever.'},
+ ...fillMonths([
+   {from:'2022-01',to:'2023-12',val:60},
+   {from:'2024-01',to:'2026-06',val:75},
+ ],[{from:'2024-01',to:'2026-06',val:100}])
+},
+{id:'citi-aa-plat',issuer:'citi',name:'Citi® / AAdvantage® Platinum Select® World Elite Mastercard®',af:99,
+ current:'80k after $3.5k / 4 months (enter code 000000)',atb:'80k — best ever (Jul 2025)',
+ rating:'great',conf:'high',
+ link:'https://monkeymiles.boardingarea.com/citi-american-airlines-credit-cards-offers/',
+ tags:['citi','american airlines','aadvantage','airline','personal'],
+ approx:false,
+ elevated:[ALL_MONTHS.indexOf('2025-07'),ALL_MONTHS.indexOf('2025-08'),ALL_MONTHS.indexOf('2025-09'),ALL_MONTHS.indexOf('2025-10')],
+ monthlyNotes:{
+   '2025-05':'60K (prior 75K offer expired).',
+   '2025-07':'80K — best ever on this card.',
+   '2025-10':'80K via inflight code 000000 or cabin crew code.',
+ },
+ ...fillMonths([
+   {from:'2016-01',to:'2020-06',val:50},
+   {from:'2020-07',to:'2023-12',val:65},
+   {from:'2024-01',to:'2025-04',val:65},
+   {from:'2025-05',to:'2025-06',val:60},
+   {from:'2025-07',to:'2026-06',val:80},
+ ])
+},
+{id:'citi-aa-exec',issuer:'citi',name:'Citi® / AAdvantage® Executive World Elite Mastercard®',af:595,
+ current:'100k after $10k / 3 months',atb:'100k after $10k / 3 months',
+ rating:'great',conf:'med',
+ link:'https://monkeymiles.boardingarea.com/citi-american-airlines-credit-cards-offers/',
+ tags:['citi','american airlines','aadvantage','airline','personal'],
+ approx:true,
+ elevated:[ALL_MONTHS.indexOf('2023-09'),ALL_MONTHS.indexOf('2024-09')],
+ monthlyNotes:{},
+ ...fillMonths([
+   {from:'2019-01',to:'2022-06',val:50},
+   {from:'2022-07',to:'2022-12',val:75},
+   {from:'2023-01',to:'2026-06',val:100},
+ ])
+},
+{id:'citi-globe',issuer:'citi',name:'Citi Globe Card',af:350,
+ current:'90k after $5k / 4 months',atb:'90k after $5k / 4 months',
+ rating:'great',conf:'low',
+ link:'https://monkeymiles.boardingarea.com/citi-american-airlines-credit-cards-offers/',
+ tags:['citi','globe','personal'],
+ approx:true,
+ elevated:[ALL_MONTHS.indexOf('2025-09')],
+ monthlyNotes:{'2025-01':'Card launched ~2025.'},
+ ...fillMonths([{from:'2025-01',to:'2026-06',val:90}])
+},
+{id:'citi-aa-biz',issuer:'citi',name:'CitiBusiness® / AAdvantage® Platinum Select® Mastercard®',af:99,
+ current:'75k after $5k / 5 months (fee waived first year)',atb:'75k after $5k / 3 months',
+ rating:'good',conf:'high',
+ link:'https://monkeymiles.boardingarea.com/citi-american-airlines-credit-cards-offers/',
+ tags:['citi','american airlines','aadvantage','airline','business'],
+ approx:false,
+ elevated:[ALL_MONTHS.indexOf('2025-04'),ALL_MONTHS.indexOf('2025-10'),ALL_MONTHS.indexOf('2026-03'),ALL_MONTHS.indexOf('2026-04')],
+ monthlyNotes:{
+   '2025-04':'75K back.',
+   '2025-10':'75K back.',
+   '2025-12':'expired.',
+   '2026-03':'75K back (current).',
+ },
+ ...fillMonths([
+   {from:'2016-01',to:'2022-06',val:65},
+   {from:'2022-07',to:'2025-03',val:65},
+   {from:'2025-04',to:'2025-05',val:75},
+   {from:'2025-06',to:'2025-09',val:65},
+   {from:'2025-10',to:'2025-11',val:75},
+   {from:'2025-12',to:'2026-02',val:65},
+   {from:'2026-03',to:'2026-06',val:75},
+ ])
+},
+{id:'citi-aa-mileup',issuer:'citi',name:'American Airlines AAdvantage® MileUp® Card',af:0,
+ current:'15k after $500 / 3 months',atb:'15k after $500 / 3 months',
+ rating:'below',conf:'low',
+ link:null,
+ tags:['citi','american airlines','aadvantage','airline','personal','no fee'],
+ approx:true,
+ elevated:[],
+ monthlyNotes:{},
+ ...fillMonths([{from:'2018-01',to:'2026-06',val:15}])
+},
+// ═══════════════════════════════════════════════════════════════
+// US BANK
+// ═══════════════════════════════════════════════════════════════
+{id:'usb-alt-connect',issuer:'usb',name:'U.S. Bank Business Altitude™ Connect World Elite Mastercard®',af:95,
+ current:'60k after $6k / 180 days',atb:'60k after $6k / 180 days',
+ rating:'good',conf:'low',
+ link:'https://www.usbank.com/business-banking/business-credit-cards.html',
+ tags:['us bank','altitude','connect','business'],
+ approx:true,
+ elevated:[],
+ monthlyNotes:{},
+ ...fillMonths([{from:'2023-01',to:'2026-06',val:60}])
+},
+{id:'usb-alt-power',issuer:'usb',name:'Business Altitude™ Power World Elite Mastercard®',af:195,
+ current:'75k after $10k / 120 days',atb:'75k after $10k / 120 days',
+ rating:'good',conf:'low',
+ link:'https://www.usbank.com/business-banking/business-credit-cards.html',
+ tags:['us bank','altitude','power','business'],
+ approx:true,
+ elevated:[],
+ monthlyNotes:{},
+ ...fillMonths([{from:'2023-01',to:'2026-06',val:75}])
+},
+{id:'usb-triple-cash',issuer:'usb',name:'U.S. Bank Triple Cash Rewards Visa® Business Card',af:0,
+ current:'$750 after $6k / 180 days',atb:'$750 after $6k / 180 days',
+ rating:'good',conf:'low',
+ link:'https://www.usbank.com/business-banking/business-credit-cards.html',
+ tags:['us bank','triple cash','business','no fee','cash'],
+ approx:true,
+ elevated:[],
+ monthlyNotes:{},
+ isCash:true,
+ ...fillMonths([{from:'2021-01',to:'2026-06',val:750}])
+},
+{id:'usb-leverage',issuer:'usb',name:'U.S. Bank Business Leverage® Visa Signature® Card',af:0,
+ current:'$750 after $7.5k / 120 days',atb:'$750 after $7.5k / 120 days',
+ rating:'good',conf:'low',
+ link:'https://www.usbank.com/business-banking/business-credit-cards.html',
+ tags:['us bank','leverage','business','no fee','cash'],
+ approx:true,
+ elevated:[],
+ monthlyNotes:{},
+ isCash:true,
+ ...fillMonths([{from:'2021-01',to:'2026-06',val:750}])
+},
+];
+
+// ── CHART STATE ────────────────────────────────────────────────────────────────
+let activeIssuer='all', searchQ='', modalChart=null, activeCard=null, viewMode='all', activeYear=null;
+
+function getFiltered(){
+  return CARDS.filter(c=>{
+    const mi=activeIssuer==='all'||c.issuer===activeIssuer;
+    const q=searchQ.toLowerCase();
+    const ms=!q||c.name.toLowerCase().includes(q)||c.tags.some(t=>t.includes(q))||IC[c.issuer].lbl.toLowerCase().includes(q)||c.current.toLowerCase().includes(q);
+    return mi&&ms;
+  });
+}
+
+function ratingPct(c){
+  const m=c.atb.match(/([\d,]+)k/i);
+  if(!m)return 20;
+  return Math.min(100,Math.round(parseInt(m[1].replace(/,/g,''))*1000/300000*100));
+}
+
+function buildCard(c){
+  const ic=IC[c.issuer];
+  const rc={great:{l:'Great offer',cl:'tg'},good:{l:'Good offer',cl:'tgood'},below:{l:'Below avg',cl:'tbl'}}[c.rating];
+  const cc={high:{l:'High confidence',cl:'ch2'},med:{l:'Medium confidence',cl:'cm'},low:{l:'Limited data',cl:'cl'}}[c.conf];
+  const pct=ratingPct(c);
+  const bc=c.rating==='great'?'#1a7a3a':c.rating==='good'?'#b07d1a':'#999';
+  const lmBtn=c.link?`<a class="btn-learn" href="${c.link}" target="_blank" rel="noopener">Learn More ↗</a>`:'';
+  return `<div class="card">
+    <div class="ch">
+      <div style="flex:1;min-width:0">
+        <div class="cn">${c.name}</div>
+        <div class="cf">Annual Fee: ${c.af===0?'No Annual Fee':'$'+c.af}</div>
+      </div>
+      <span class="cib ${ic.badge}">${ic.lbl}</span>
+    </div>
+    <div class="cb">
+      <div style="margin-bottom:9px">
+        <div class="ol">Current best offer</div>
+        <div class="ov">${c.current} <span class="otag ${rc.cl}">${rc.l}</span></div>
+      </div>
+      <div style="margin-bottom:6px">
+        <div class="ol">All-time best</div>
+        <div class="ov oh">${c.atb}</div>
+      </div>
+
+    </div>
+    <div class="cfoot">
+      <button class="btn-chart" onclick="openModal('${c.id}')">📈 History & Pattern</button>
+      ${lmBtn}
+      <div class="dc"><div class="cd ${cc.cl}"></div>${cc.l}</div>
+    </div>
+  </div>`;
+}
+
+function renderCards(){
+  const fil=getFiltered();
+  document.getElementById('rc').textContent=`${fil.length} card${fil.length!==1?'s':''}`;
+  const main=document.getElementById('main');
+  if(!fil.length){main.innerHTML=`<div class="nr"><div class="nr-i">🔍</div><div>No cards found for "${searchQ}"</div></div>`;return;}
+  if(activeIssuer!=='all'){main.innerHTML=`<div class="cg">${fil.map(buildCard).join('')}</div>`;return;}
+  const by={};fil.forEach(c=>{(by[c.issuer]||(by[c.issuer]=[])).push(c);});
+  const order=['amex','chase','co','citi','barclay','boa','bilt','usb'];
+  main.innerHTML=order.filter(i=>by[i]).map(i=>`<div class="is"><div class="ih">${IC[i].lbl}<span class="ic">${by[i].length}</span></div><div class="cg">${by[i].map(buildCard).join('')}</div></div>`).join('');
+}
+
+// ── MODAL ──────────────────────────────────────────────────────────────────────
+function getChartData(card){
+  // Returns {labels, pubData, tgtData, patternBands, peakIdx}
+  if(viewMode==='monthly'){
+    // Show monthly for selected year, or all months
+    const labels=ALL_MONTHS.map(ymLabel);
+    return{labels,pubData:card.pub,tgtData:card.tgt,months:ALL_MONTHS};
+  }
+  if(viewMode==='all'){
+    // Yearly aggregated (max per year)
+    const years=[];
+    for(let y=2016;y<=2026;y++) years.push(y);
+    const pub=years.map(y=>{
+      const idxs=ALL_MONTHS.map((m,i)=>m.startsWith(y+'-')?i:-1).filter(i=>i>=0);
+      const vals=idxs.map(i=>card.pub[i]).filter(v=>v!==null);
+      return vals.length?Math.max(...vals):null;
+    });
+    const tgt=years.map(y=>{
+      const idxs=ALL_MONTHS.map((m,i)=>m.startsWith(y+'-')?i:-1).filter(i=>i>=0);
+      const vals=idxs.map(i=>card.tgt[i]).filter(v=>v!==null&&v!==undefined);
+      return vals.length?Math.max(...vals):null;
+    });
+    // Pattern: which years had elevated months
+    const elevYears=new Set(card.elevated.map(i=>i>=0?parseInt(ALL_MONTHS[i].split('-')[0]):null));
+    return{labels:years.map(String),pubData:pub,tgtData:tgt,elevYears,years};
+  }
+  // Specific year view
+  const y=activeYear;
+  const idxs=ALL_MONTHS.map((m,i)=>m.startsWith(y+'-')?i:-1).filter(i=>i>=0);
+  const labels=idxs.map(i=>ymLabel(ALL_MONTHS[i]));
+  const pub=idxs.map(i=>card.pub[i]);
+  const tgt=idxs.map(i=>card.tgt[i]);
+  return{labels,pubData:pub,tgtData:tgt,idxs};
+}
+
+function openModal(id){
+  const card=CARDS.find(c=>c.id===id);
+  if(!card)return;
+  activeCard=card;
+  viewMode='all';activeYear=null;
+  const ic=IC[card.issuer];
+  document.getElementById('mt').textContent=card.name;
+  document.getElementById('mss').textContent=`${ic.lbl} · ${card.af===0?'No Annual Fee':'$'+card.af+' Annual Fee'}`;
+  const modalLM = document.getElementById('modalLearnMore');
+  if(card.link){ modalLM.href=card.link; modalLM.style.display='flex'; }
+  else { modalLM.style.display='none'; }
+  // Stats
+  const pubMax=Math.max(...card.pub.filter(Boolean));
+  const tgtMax=card.tgt?Math.max(...card.tgt.filter(Boolean)):0;
+  const isCash=card.isCash||false;
+  document.getElementById('mst').innerHTML=`
+    <div class="msi"><div class="msil">Current offer</div><div class="msiv hl2">${card.current.split('/')[0].trim()}</div></div>
+    <div class="msi"><div class="msil">All-time best</div><div class="msiv">${card.atb.split('(')[0].trim()}</div></div>
+    <div class="msi"><div class="msil">Public peak</div><div class="msiv">${isCash?'$'+pubMax:pubMax+'K'}</div></div>
+    <div class="msi"><div class="msil">Elevated periods</div><div class="msiv">${card.elevated.filter(i=>i>=0).length}</div></div>`;
+  // Year buttons
+  const startYear=parseInt(ALL_MONTHS.find(m=>card.pub[ALL_MONTHS.indexOf(m)]!==null)||'2016').toString().substring(0,4)||2016;
+  const yearRange=[];for(let y=parseInt(startYear);y<=2026;y++) yearRange.push(y);
+  document.getElementById('yr-btns').innerHTML=yearRange.map(y=>`<button class="vt" data-v="year" data-y="${y}">${y}</button>`).join('');
+  setupViewTabs();
+  drawChart(card);
+  document.getElementById('mo').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function setupViewTabs(){
+  document.querySelectorAll('#vtabs .vt').forEach(btn=>{
+    btn.onclick=()=>{
+      const v=btn.dataset.v;
+      if(v==='year'){viewMode='year';activeYear=parseInt(btn.dataset.y);}
+      else{viewMode=v;activeYear=null;}
+      document.querySelectorAll('#vtabs .vt').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      drawChart(activeCard);
+    };
+  });
+  document.querySelectorAll('#vtabs .vt')[0].classList.add('active');
+}
+
+function drawChart(card){
+  if(modalChart){modalChart.destroy();modalChart=null;}
+  const ic=IC[card.issuer];
+  const cd=getChartData(card);
+  const isCash=card.isCash||false;
+  const hasTgt=cd.tgtData&&cd.tgtData.some(Boolean);
+
+  // Legend
+  document.getElementById('cleg').innerHTML=`
+    <div class="li"><div class="ls" style="background:${ic.line}"></div>Public offer</div>
+    ${hasTgt?`<div class="li"><div class="ld" style="border-color:${ic.tgt}"></div>Best targeted</div>`:''}`;
+
+  // Approx note
+  document.getElementById('approx-note').textContent=card.approx
+    ?'⚠ Some monthly data is estimated from quarterly records. Exact dates may vary by 1–2 months.':'';
+
+  // Pattern legend visibility
+  document.getElementById('pleg').style.display=card.elevated.filter(i=>i>=0).length?'flex':'none';
+
+  const datasets=[{
+    label:'Public offer',data:cd.pubData,
+    borderColor:ic.line,backgroundColor:ic.fill,borderWidth:2.5,
+    pointRadius:4,pointHoverRadius:8,pointBackgroundColor:ic.line,
+    pointBorderColor:'#fff',pointBorderWidth:2,tension:.3,fill:true,spanGaps:true
+  }];
+  if(hasTgt) datasets.push({
+    label:'Best targeted',data:cd.tgtData,
+    borderColor:ic.tgt,borderWidth:1.5,borderDash:[5,4],
+    pointRadius:3,pointHoverRadius:6,pointBackgroundColor:ic.tgt,
+    pointBorderColor:'#fff',pointBorderWidth:1.5,tension:.3,fill:false,spanGaps:true
+  });
+
+  // Build pattern/peak annotations as chartjs plugins manually via afterDraw
+  const allPub=cd.pubData.filter(Boolean);
+  const peakVal=allPub.length?Math.max(...allPub):null;
+  const peakIdx=peakVal!==null?cd.pubData.indexOf(peakVal):-1;
+
+  // Elevated indices in current view
+  let elevIdxsInView=[];
+  if(viewMode==='all'){
+    // year view: which year indices have elevated months
+    elevIdxsInView=cd.years?cd.years.map((y,i)=>(cd.elevYears&&cd.elevYears.has(y))?i:-1).filter(i=>i>=0):[];
+  } else if(viewMode==='year'&&activeYear){
+    elevIdxsInView=card.elevated.filter(i=>i>=0&&ALL_MONTHS[i]&&ALL_MONTHS[i].startsWith(activeYear+'-')).map(i=>{
+      const m=parseInt(ALL_MONTHS[i].split('-')[1])-1;return m;
+    });
+  } else if(viewMode==='monthly'){
+    elevIdxsInView=card.elevated.filter(i=>i>=0);
+  }
+
+  const ctx=document.getElementById('mc2').getContext('2d');
+  const hoverNote=document.getElementById('hn2');
+
+  // Custom pattern band plugin
+  const patternPlugin={
+    id:'patternBands',
+    afterDraw(chart){
+      const{ctx,chartArea,scales}=chart;
+      if(!chartArea)return;
+      const xScale=scales.x;
+      // Draw elevated bands
+      elevIdxsInView.forEach(idx=>{
+        if(idx<0||idx>=cd.labels.length)return;
+        const x0=xScale.getPixelForValue(idx);
+        const w=xScale.width/(cd.labels.length||1);
+        ctx.save();
+        ctx.fillStyle='rgba(255,193,7,.18)';
+        ctx.fillRect(x0-w/2,chartArea.top,w,chartArea.bottom-chartArea.top);
+        ctx.restore();
+      });
+      // Peak highlight
+      if(peakIdx>=0&&peakIdx<cd.labels.length){
+        const x0=xScale.getPixelForValue(peakIdx);
+        const w=xScale.width/(cd.labels.length||1);
+        ctx.save();
+        ctx.fillStyle='rgba(200,16,46,.1)';
+        ctx.fillRect(x0-w/2,chartArea.top,w,chartArea.bottom-chartArea.top);
+        ctx.restore();
+      }
+    }
+  };
+
+  modalChart=new Chart(ctx,{
+    type:'line',
+    data:{labels:cd.labels,datasets},
+    plugins:[patternPlugin],
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      layout:{padding:{top:6}},
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          enabled:true,
+          position:'nearest',
+          backgroundColor:'rgba(13,13,13,0.92)',
+          titleColor:'#fff',
+          bodyColor:'#ccc',
+          borderColor:'rgba(255,255,255,0.1)',
+          borderWidth:1,
+          padding:10,
+          cornerRadius:6,
+          titleFont:{size:12,weight:'bold',family:"'Source Sans 3',sans-serif"},
+          bodyFont:{size:11,family:"'Source Sans 3',sans-serif"},
+          displayColors:false,
+          callbacks:{
+            title:(items)=>{
+              return items[0].label;
+            },
+            label:(item)=>{
+              const isCash=activeCard&&(activeCard.isCash||false);
+              const v=item.parsed.y;
+              if(v===null||v===undefined) return null;
+              const ds=item.dataset.label;
+              const val=isCash?'$'+v:v+'K pts';
+              return ds+': '+val;
+            },
+            afterBody:(items)=>{
+              const i=items[0].dataIndex;
+              const card=activeCard;
+              if(!card) return [];
+              const cd=getChartData(card);
+              let note='';
+              if(viewMode==='monthly'||viewMode==='year'){
+                const ym=viewMode==='monthly'?ALL_MONTHS[i]:(activeYear+'-'+String(i+1).padStart(2,'0'));
+                note=card.monthlyNotes&&card.monthlyNotes[ym]?card.monthlyNotes[ym]:'';
+              } else if(viewMode==='all'&&cd.years){
+                const y=cd.years[i];
+                note=Object.entries(card.monthlyNotes||{}).filter(([k])=>k.startsWith(y+'-')).map(([,v])=>v).join(' ');
+              }
+              const isElev=card.elevated&&card.elevated.filter(x=>x>=0).some(x=>{
+                if(viewMode==='all'&&cd.years) return parseInt(ALL_MONTHS[x]&&ALL_MONTHS[x].split('-')[0])===cd.years[i];
+                return x===i;
+              });
+              const lines=[];
+              if(isElev) lines.push('🟡 Historically elevated period');
+              if(note) lines.push(note);
+              return lines;
+            }
+          }
+        }
+      },
+      onHover:(evt,elements)=>{
+        if(!elements.length)return;
+        const i=elements[0].index;
+        const label=cd.labels[i];
+        const pub=cd.pubData[i];
+        const tgt=cd.tgtData?cd.tgtData[i]:null;
+        // note
+        let note='';
+        if(viewMode==='monthly'||viewMode==='year'){
+          const ym=viewMode==='monthly'?ALL_MONTHS[i]:activeYear+'-'+String(i+1).padStart(2,'0');
+          note=card.monthlyNotes&&card.monthlyNotes[ym]?card.monthlyNotes[ym]:'';
+        } else if(viewMode==='all'&&cd.years){
+          // find any note for this year
+          const y=cd.years[i];
+          note=Object.entries(card.monthlyNotes||{}).filter(([k])=>k.startsWith(y+'-')).map(([,v])=>v).join(' ');
+        }
+        const isElev=elevIdxsInView.includes(i);
+        hoverNote.style.display='block';
+        hoverNote.innerHTML=`<strong>${label}</strong> · Public: ${pub?((isCash?'$':'')+pub+(isCash?'':'K')):'N/A'}${tgt&&tgt>pub?` · Best targeted: ${isCash?'$':''}${tgt}${isCash?'':'K'}`:''}${isElev?' 🟡 <em>Historically elevated period</em>':''}${note?`<br>${note}`:''}`;
+      },
+      scales:{
+        x:{ticks:{font:{size:10},color:'#888',maxRotation:40,autoSkip:viewMode==='monthly',maxTicksLimit:viewMode==='monthly'?18:undefined},grid:{color:'rgba(0,0,0,.04)'}},
+        y:{ticks:{font:{size:10},color:'#888',callback:v=>isCash?'$'+v:v+'K'},grid:{color:'rgba(0,0,0,.05)'},border:{display:false},title:{display:true,text:isCash?'Cash value ($)':'Points (thousands)',font:{size:10},color:'#999'}}
+      }
+    }
+  });
+  document.getElementById('hn').textContent='Hover a data point · 🟡 = historically elevated period · 🔴 = all-time peak · Sources: MonkeyMiles, FrequentMiler, UpgradedPoints, AwardWallet, DoctorofCredit, Slickdeals, USCreditCardGuide';
+  hoverNote.style.display='none';
+}
+
+function closeModal(){
+  document.getElementById('mo').classList.remove('open');
+  document.body.style.overflow='';
+  if(modalChart){modalChart.destroy();modalChart=null;}
+}
+
+document.getElementById('mcl').addEventListener('click',closeModal);
+document.getElementById('mo').addEventListener('click',e=>{if(e.target===document.getElementById('mo'))closeModal();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+document.getElementById('srch').addEventListener('input',e=>{searchQ=e.target.value.trim();renderCards();});
+document.getElementById('itabs').addEventListener('click',e=>{
+  const b=e.target.closest('.tb');if(!b)return;
+  activeIssuer=b.dataset.i;
+  document.querySelectorAll('.tb').forEach(x=>x.classList.toggle('active',x===b));
+  renderCards();
+});
+
+
+// ── Populate card dropdown ─────────────────────────────────────────────
+function populateDropdown(){
+  const sel = document.getElementById('cardDropdown');
+  // Group by issuer
+  const order = ['amex','chase','co','citi','barclay','boa','bilt','usb'];
+  const groups = {};
+  CARDS.forEach(c => { (groups[c.issuer]||(groups[c.issuer]=[])).push(c); });
+  order.forEach(iss => {
+    if(!groups[iss]) return;
+    const og = document.createElement('optgroup');
+    og.label = IC[iss].lbl;
+    groups[iss].forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c.id;
+      opt.textContent = c.name;
+      og.appendChild(opt);
+    });
+    sel.appendChild(og);
+  });
+}
+populateDropdown();
+
+document.getElementById('cardDropdown').addEventListener('change', e => {
+  const val = e.target.value;
+  if(!val) {
+    // Reset to show all
+    searchQ = '';
+    document.getElementById('srch').value = '';
+    renderCards();
+    return;
+  }
+  // Open the modal directly for this card
+  const card = CARDS.find(c => c.id === val);
+  if(card) {
+    // Show the card's issuer tab and scroll to it
+    activeIssuer = 'all';
+    searchQ = '';
+    document.getElementById('srch').value = '';
+    document.querySelectorAll('.tb').forEach(b => b.classList.toggle('active', b.dataset.i === 'all'));
+    renderCards();
+    // Small delay to allow render, then open modal
+    setTimeout(() => openModal(val), 50);
+  }
+  // Reset dropdown
+  e.target.value = '';
+});
+
+// ── Great Offers toggle ────────────────────────────────────────────────
+let greatOffersMode = false;
+document.getElementById('greatOffersBtn').addEventListener('click', () => {
+  greatOffersMode = !greatOffersMode;
+  document.getElementById('greatOffersBtn').classList.toggle('active', greatOffersMode);
+  renderCards();
+});
+
+// Patch getFiltered to support great offers mode
+const _origGetFiltered = getFiltered;
+// Override getFiltered inline
+function getFiltered(){
+  let cards = CARDS.filter(c=>{
+    const mi=activeIssuer==='all'||c.issuer===activeIssuer;
+    const q=searchQ.toLowerCase();
+    const ms=!q||c.name.toLowerCase().includes(q)||c.tags.some(t=>t.includes(q))||IC[c.issuer].lbl.toLowerCase().includes(q)||c.current.toLowerCase().includes(q);
+    return mi&&ms;
+  });
+  if(greatOffersMode) cards = cards.filter(c => c.rating === 'great');
+  return cards;
+}
+
+renderCards();
+</script>
+</body>
+</html>
